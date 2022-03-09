@@ -709,9 +709,8 @@ HMObjective calculateObjective(std::vector<HMInputParamBase *> &InParams, std::s
   }
 }
 
-void sddmmExhaustiveSearch(std::string matrix_name, std::ofstream &logger) {
+void exhaustiveSearch(std::string type, std::string matrix_name, std::ofstream &logger) {
 
-  std::vector<std::vector<std::vector<double>>> obj_values(120, vector<vector<double>>(7, vector<double>(2)));
   using namespace taco;
 
   int NUM_I = 67173;
@@ -724,79 +723,122 @@ void sddmmExhaustiveSearch(std::string matrix_name, std::ofstream &logger) {
   if(!initialized) {
     // spmm_handler = new SpMM(NUM_I, NUM_J, NUM_K, sparsity);
     // spmm_handler = new SpMM(0, NUM_I, NUM_J, NUM_K, _sparsity);
+
     sddmm_handler = new SDDMM();
+    spmm_handler = new SpMM();
+
     sddmm_handler->matrix_name = matrix_name;
+    spmm_handler->matrix_name = matrix_name;
+    spmm_handler->NUM_K = 256;
     // spmm_handler->initialize_data(0);
-    sddmm_handler->initialize_data(1);
+    if (type == "SDDMM") {
+      sddmm_handler->initialize_data(1);
+    } else if (type == "SpMM") {
+      spmm_handler->initialize_data(1);
+    } else {
+      throw std::invalid_argument("type needs to be SDDMM or SpMM");
+    }
     initialized = true;
-    sparsity = sddmm_handler->get_sparsity();
+    // sparsity = handler->get_sparsity();
     op = "SDDMM";
 
     // Taco requires you to start with running the deafult
     std::vector<int> tmp_loop_ordering = default_ordering;
     int tmp_chunk_size = 16;
     int tmp_unroll_factor = 8;
-    sddmm_handler->generate_schedule(tmp_chunk_size, tmp_unroll_factor, tmp_loop_ordering);
+    if (type == "SDDMM") {
+      sddmm_handler->generate_schedule(tmp_chunk_size, tmp_unroll_factor, tmp_loop_ordering);
+    } else if (type == "SpMM") {
+      spmm_handler->generate_schedule(tmp_chunk_size, tmp_unroll_factor, tmp_loop_ordering);
+    }
     compute_times = vector<double>();
     for(int i = 0; i < num_reps; i++) {
-      sddmm_handler->compute(true);
-      compute_times.push_back(sddmm_handler->get_compute_time());
+      if (type == "SDDMM") {
+        sddmm_handler->compute(true);
+        compute_times.push_back(sddmm_handler->get_compute_time());
+      } else if (type == "SpMM") {
+        spmm_handler->compute(true);
+        compute_times.push_back(spmm_handler->get_compute_time());
+      }
     }
     default_config_time = median(compute_times);
   }
 
-  std::string test_name = "SDDMM";
   std::vector<int> chunkSizeValues{8, 16, 32, 64, 128, 256, 512};
   std::vector<int> unrollFactorValues{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
   std::vector<int> ompSchedulingType{0, 1};
   std::vector<int> ompChunkSizeValues{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
   std::vector<int> loop_ordering{0, 1, 2, 3, 4};
+  std::vector<int> numThreadsValues{0, 1, 2, 4, 8, 16, 32};
   int unroll_factor = 8;
   int chunk_size = 16;
   int num_threads = 32;
-
-
   int permutation_idx = 0;
-  for (int omp_chunk_size_idx = 0; omp_chunk_size_idx < 7; omp_chunk_size_idx++) {
-    int omp_chunk_size = ompChunkSizeValues[omp_chunk_size_idx];
-    cout << chunk_size << endl;
+  int omp_chunk_size = 16;
+  int omp_scheduling_type = 0;
 
-    permutation_idx = 0;
-    loop_ordering = vector<int>{0, 1, 2, 3, 4};
+  std::vector<int> vector1 = ompChunkSizeValues;
+  std::vector<int> vector2 = numThreadsValues;
+  std::vector<int> vector3 = ompSchedulingType;
 
-    do {
-      for (int l : loop_ordering) {
-        cout << l << " ";
-      }
-      cout << endl;
-      for (int omp_scheduling_type = 0; omp_scheduling_type < 2; omp_scheduling_type++) {
-        sddmm_handler->generate_schedule(chunk_size, unroll_factor, loop_ordering, omp_scheduling_type, omp_chunk_size, num_threads);
+  int size1 = vector1.size();
+  int size2 = vector2.size();
+  int size3 = vector3.size();
 
+  std::vector<std::vector<std::vector<double>>> obj_values(size1, vector<vector<double>>(size2, vector<double>(size3)));
+
+  for (int idx1 = 0; idx1 < size1; idx1++) {
+    omp_chunk_size = vector1[idx1];
+    cout << omp_chunk_size << endl;
+
+    // permutation_idx = 0;
+    // loop_ordering = vector<int>{0, 1, 2, 3, 4};
+    //
+    // do {
+    //   for (int l : loop_ordering) {
+    //     cout << l << " ";
+    //   }
+    //   cout << endl;
+    for (int idx2 = 0; idx2 < size2; idx2++){
+      num_threads = vector2[idx2];
+      for (int idx3 = 0; idx3 < size3; idx3++) {
+        omp_scheduling_type = ompSchedulingType[idx3];
         double total_time = 0.0;
-        for(int i = 0; i < num_reps; i++) {
-          sddmm_handler->compute(false);
-          total_time += sddmm_handler->get_compute_time();
+        if (type == "SDDMM") {
+          sddmm_handler->generate_schedule(chunk_size, unroll_factor, loop_ordering, omp_scheduling_type, omp_chunk_size, num_threads);
+          for(int i = 0; i < num_reps; i++) {
+            sddmm_handler->compute(false);
+            total_time += sddmm_handler->get_compute_time();
+          }
+        } else if (type == "SpMM") {
+          spmm_handler->generate_schedule(chunk_size, unroll_factor, loop_ordering, omp_scheduling_type, omp_chunk_size, num_threads);
+          for(int i = 0; i < num_reps; i++) {
+            spmm_handler->compute(false);
+            total_time += spmm_handler->get_compute_time();
+          }
         }
-
         double compute_time = total_time / num_reps;
-        obj_values[permutation_idx][omp_chunk_size_idx][omp_scheduling_type] = compute_time;
+        obj_values[idx1][idx2][idx3] = compute_time;
       }
-      permutation_idx ++;
-    } while (std::next_permutation(loop_ordering.begin(), loop_ordering.end()));
+      // permutation_idx ++;
+    // } while (std::next_permutation(loop_ordering.begin(), loop_ordering.end()));
+    }
   }
 
   std::vector<int> loop_ordering2{0, 1, 2, 3, 4};
   permutation_idx = 0;
 
-  do {
-    for (int omp_scheduling_type = 0; omp_scheduling_type < 2; omp_scheduling_type++) {
-      for (int chunkSize_idx = 0; chunkSize_idx < 7; chunkSize_idx++) {
-        cout << obj_values[permutation_idx][chunkSize_idx][omp_scheduling_type] << " ";
+  // do {
+  for (int idx1 = 0; idx1 < size1; idx1++) {
+    for (int idx2 = 0; idx2 < size2; idx2++) {
+      for (int idx3 = 0; idx3 < size3; idx3++) {
+        cout << obj_values[idx1][idx2][idx3] << " ";
       }
     }
     cout << endl;
-    permutation_idx ++;
-  } while (std::next_permutation(loop_ordering2.begin(), loop_ordering2.end()));
+  }
+  //   permutation_idx ++;
+  // } while (std::next_permutation(loop_ordering2.begin(), loop_ordering2.end()));
 }
 
 void SpMMVarianceTest(std::ofstream &logger) {
@@ -924,7 +966,7 @@ int main(int argc, char **argv) {
   }
 
   if (exh_search) {
-    sddmmExhaustiveSearch(matrix_name, logger);
+    exhaustiveSearch(test_name, matrix_name, logger);
     exit(1);
   }
 

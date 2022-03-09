@@ -545,7 +545,6 @@ public:
         timer.start();
         A.compute();
         timer.stop();
-
         // bool correct = check_correctness(A);
 
         // if(!correct) {
