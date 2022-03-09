@@ -711,7 +711,7 @@ HMObjective calculateObjective(std::vector<HMInputParamBase *> &InParams, std::s
 
 void sddmmExhaustiveSearch(std::string matrix_name, std::ofstream &logger) {
 
-  std::vector<std::vector<std::vector<double>>> obj_values(120, vector(7, vector<double>(2)));
+  std::vector<std::vector<std::vector<double>>> obj_values(120, vector<vector<double>>(7, vector<double>(2)));
   using namespace taco;
 
   int NUM_I = 67173;

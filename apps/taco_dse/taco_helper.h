@@ -685,7 +685,7 @@ public:
         cout << "B: [" << B.getDimensions()[0] << "," << B.getDimensions()[1] << "]" << endl;
         cout << "C: [" << C.getDimensions()[0] << "," << C.getDimensions()[1] << "]" << endl;
         cout << "D: [" << D.getDimensions()[0] << "," << D.getDimensions()[1] << "]" << endl;
-        
+
         // Avoid duplicate reinitialize
         initialized = true;
         std::vector<taco::IndexVar> reorder_{i0, i1, jpos0, k, jpos1};
@@ -727,7 +727,7 @@ public:
             taco::taco_set_parallel_schedule(taco::ParallelSchedule::Dynamic, omp_chunk_size);
         }
         get_reordering(reorder, order);
-        taco::taco_set_parallel_schedule(taco::ParallelSchedule::Dynamic, 16);
+        // taco::taco_set_parallel_schedule(taco::ParallelSchedule::Dynamic, 16);
         return stmt.split(i, i0, i1, chunk_size)
                 .pos(j, jpos, B(i,j))
                 .split(jpos, jpos0, jpos1, unroll_factor)
