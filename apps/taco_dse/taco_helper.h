@@ -472,6 +472,7 @@ public:
         std::vector<taco::IndexVar> reorder; //= get_reordering(order);
         reorder.reserve(order.size());
         get_reordering(reorder, order);
+        cout << reorder << endl;
         if(omp_scheduling_type == 0) {
             taco::taco_set_parallel_schedule(taco::ParallelSchedule::Static, omp_chunk_size);
         }

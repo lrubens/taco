@@ -773,9 +773,14 @@ void exhaustiveSearch(std::string type, std::string matrix_name, std::ofstream &
   int unroll_factor = 8;
   int chunk_size = 16;
   int num_threads = 32;
-  int permutation_idx = 0;
   int omp_chunk_size = 16;
   int omp_scheduling_type = 0;
+  std::vector<std::vector<int>> loop_orderings;
+
+  do {
+      loop_orderings.push_back(loop_ordering);
+  } while (std::next_permutation(loop_ordering.begin(), loop_ordering.end()));
+  loop_ordering = std::vector<int>{0, 1, 2, 3, 4};
 
   std::vector<int> vector1 = ompChunkSizeValues;
   std::vector<int> vector2 = numThreadsValues;
@@ -790,15 +795,6 @@ void exhaustiveSearch(std::string type, std::string matrix_name, std::ofstream &
   for (int idx1 = 0; idx1 < size1; idx1++) {
     omp_chunk_size = vector1[idx1];
     cout << omp_chunk_size << endl;
-
-    // permutation_idx = 0;
-    // loop_ordering = vector<int>{0, 1, 2, 3, 4};
-    //
-    // do {
-    //   for (int l : loop_ordering) {
-    //     cout << l << " ";
-    //   }
-    //   cout << endl;
     for (int idx2 = 0; idx2 < size2; idx2++){
       num_threads = vector2[idx2];
       for (int idx3 = 0; idx3 < size3; idx3++) {
@@ -820,15 +816,9 @@ void exhaustiveSearch(std::string type, std::string matrix_name, std::ofstream &
         double compute_time = total_time / num_reps;
         obj_values[idx1][idx2][idx3] = compute_time;
       }
-      // permutation_idx ++;
-    // } while (std::next_permutation(loop_ordering.begin(), loop_ordering.end()));
     }
   }
 
-  std::vector<int> loop_ordering2{0, 1, 2, 3, 4};
-  permutation_idx = 0;
-
-  // do {
   for (int idx1 = 0; idx1 < size1; idx1++) {
     for (int idx2 = 0; idx2 < size2; idx2++) {
       for (int idx3 = 0; idx3 < size3; idx3++) {
@@ -837,8 +827,6 @@ void exhaustiveSearch(std::string type, std::string matrix_name, std::ofstream &
     }
     cout << endl;
   }
-  //   permutation_idx ++;
-  // } while (std::next_permutation(loop_ordering2.begin(), loop_ordering2.end()));
 }
 
 void SpMMVarianceTest(std::ofstream &logger) {
