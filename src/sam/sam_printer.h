@@ -9,6 +9,12 @@
 #include <map>
 #include <vector>
 #include "sam_visitor.h"
+#include "tortilla.pb.h"
+#include "stream.pb.h"
+#include "ops.pb.h"
+#include <fcntl.h>
+#include <google/protobuf/text_format.h>
+#include <google/protobuf/io/zero_copy_stream_impl.h>
 
 namespace taco {
 namespace sam {
@@ -49,6 +55,7 @@ namespace sam {
 
     private:
         std::ostream &os;
+        // ProgramGraph pg;
     };
 
     class SAMDotNodePrinter : public SAMVisitor {
@@ -92,6 +99,9 @@ namespace sam {
         std::string tab = "    ";
         std::string name = "SAM";
         std::vector<int> printedNodes;
+        int val_writer_id = -1;
+        // ProgramGraph pg;
+        // std::map<int, Operation*> id_to_op;
 
         std::string printTensorFormats(const RootNode *op);
     };
@@ -142,6 +152,10 @@ namespace sam {
                                                         {"repsig", " style=dotted"}, {"bv", " style=dashed"}, {"",""}};
         bool printComment = false;
         std::string comment;
+        std::string label;
+        int full_joiner;
+        int val_writer_id = -1;
+        Operation *curr_op;
     };
 }
 }

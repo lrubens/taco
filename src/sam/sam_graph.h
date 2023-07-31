@@ -157,6 +157,8 @@ namespace taco {
 
         void printInputIterationAsDot(std::ostream& os);
 
+        void printInputIterationAsProto(std::ostream& os);
+
         /// Given an index variable and tensor path, gets the indexvariables mode for that tensor path
         size_t getMode(const IndexVar &, const TensorPath &) const;
 

@@ -773,7 +773,7 @@ namespace taco {
                         for (int i = numIndexVars - 1; i >= (numIndexVars - 1 - reductionOrder.back()); i--) {
                             // FIXME: check if this is always correct for more complicated kernels
                             auto indexvar = getOrderedIndexVars().at(i);
-                            cout << indexvar << ", " << endl;
+                            // cout << indexvar << ", " << endl;
                             // if (contains(resultWriteIRNodes, indexvar)) {
                             inputIterationCrdDst[indexvar] = reduceNode;
                             resultHasSource[indexvar] = true;
@@ -1171,6 +1171,17 @@ namespace taco {
 
 
     void SAMGraph::printInputIterationAsDot(std::ostream& os) {
+        auto sam = makeGraph();
+        SAMDotNodePrinter printer(os);
+        //printer.setPrintAttributes(false);
+        printer.print(sam);
+
+        SAMDotEdgePrinter printerEdge(os);
+        //printerEdge.setPrintAttributes(false);
+        printerEdge.print(sam);
+    }
+
+    void SAMGraph::printInputIterationAsProto(std::ostream& os) {
         auto sam = makeGraph();
         SAMDotNodePrinter printer(os);
         //printer.setPrintAttributes(false);

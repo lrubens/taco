@@ -12,23 +12,25 @@ using namespace std;
 
 namespace taco {
 namespace sam {
+    std::map<int, Operation*> id_to_op;
+    ProgramGraph pg;
     // SAMPrinter
     void SAMPrinter::visit(const FiberLookupNode *op) {
-        os << op->getName();
-        os << "->" << endl;
+        // os << op->getName();
+        // os << "->" << endl;
         op->out_crd.accept(this);
     }
 
     void SAMPrinter::visit(const RootNode *op) {
-        os << op->getName();
-        os << "->" << endl;
+        // os << op->getName();
+        // os << "->" << endl;
         for(auto node : op->nodes)
             node.accept(this);
     }
 
     void SAMPrinter::visit(const CrdDropNode *op) {
-        os << op->getName();
-        os << "->" << endl;
+        // os << op->getName();
+        // os << "->" << endl;
 
         if (op->out_outer_crd.defined())
             op->out_outer_crd.accept(this);
@@ -37,8 +39,8 @@ namespace sam {
     }
 
     void SAMPrinter::visit(const CrdHoldNode *op) {
-        os << op->getName();
-        os << "->" << endl;
+        // os << op->getName();
+        // os << "->" << endl;
 
         if (op->out_outer_crd.defined())
             op->out_outer_crd.accept(this);
@@ -84,7 +86,7 @@ namespace sam {
     }
 
     void SAMDotNodePrinter::print(const SamIR &sam) {
-        os << "digraph " << name << " {" << endl;
+        // os << "digraph " << name << " {" << endl;
         sam.accept(this);
     }
 
@@ -92,8 +94,9 @@ namespace sam {
     // SAMDotNodePrinter
     void SAMDotNodePrinter::visit(const RootNode *op) {
         // Add comments so formats are passed along
-        os << tab;
-        os << "comment=\"" << printTensorFormats(op) << endl;
+        pg.set_name(printTensorFormats(op));
+        // os << tab;
+        // os << "comment=\"" << printTensorFormats(op) << endl;
         for (const auto& node : op->nodes) {
             node.accept(this);
         }
@@ -102,15 +105,22 @@ namespace sam {
     // SAMDotNodePrinter
     void SAMDotNodePrinter::visit(const BroadcastNode *op) {
         if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0) {
-            os << tab;
-            os << to_string(op->nodeID) << " [comment=\"type=broadcast\"";
-            if (prettyPrint) {
-                os << " shape=point style=invis ";
-            }
-            if (printAttributes) {
-                os << "type=\"broadcast\"";
-            }
-            os << "]" << endl;
+
+            Operation *new_op = pg.add_operators();
+            new_op->set_id(op->nodeID);
+            new_op->set_name("broadcast");
+            new_op->mutable_broadcast()->set_label("broadcast");
+            id_to_op[op->nodeID] = new_op;
+
+            // os << tab;
+            // os << to_string(op->nodeID) << " [comment=\"type=broadcast\"";
+            // if (prettyPrint) {
+            //     os << " shape=point style=invis ";
+            // }
+            // if (printAttributes) {
+            //     os << "type=\"broadcast\"";
+            // }
+            // os << "]" << endl;
 
 
             for (const auto &node: op->outputs) {
@@ -127,27 +137,39 @@ namespace sam {
             string src = op->source ? ",src=true" : ",src=false";
             string root = op->root ? ",root=true" : ",root=false";
 
-            std::stringstream comment;
-            comment << "\"type=fiberlookup,index=" << op->i.getName() << ",tensor=" << op->tensorVar.getName()
-                    << ",mode=" << std::to_string(op->mode)
-                    << ",format=" << op->modeFormat.getName() << src << root << "\"";
+            // std::stringstream comment;
+            // comment << "\"type=fiberlookup,index=" << op->i.getName() << ",tensor=" << op->tensorVar.getName()
+            //         << ",mode=" << std::to_string(op->mode)
+            //         << ",format=" << op->modeFormat.getName() << src << root << "\"";
 
-            os << tab;
-            os << to_string(op->nodeID) << " [comment=" << comment.str();
-            if (prettyPrint) {
-                os << " label=\"" << op->getName() << "\"";
-                os << " color=green4 shape=box style=filled";
-            }
-            if (printAttributes) {
-                os << " type=\"fiberlookup\""
-                      " index=\"" << op->i.getName() << "\"" <<
-                      " tensor=\"" << op->tensorVar.getName() << "\"" <<
-                      " mode=\"" << std::to_string(op->mode) << "\"" <<
-                      " format=\"" << op->modeFormat.getName() << "\"" <<
-                      " src=\"" << (op->source ? "true" : "false") << "\"" <<
-                      " root=\"" << (op->root ? "true" : "false") << "\"";
-            }
-            os << "]" << endl;
+            Operation *new_op = pg.add_operators();
+            new_op->set_id(op->nodeID);
+            new_op->set_name("fiberlookup");
+            new_op->mutable_fiber_lookup()->set_root(op->root);
+            new_op->mutable_fiber_lookup()->set_format(op->modeFormat.getName());
+            new_op->mutable_fiber_lookup()->set_src(op->source);
+            new_op->mutable_fiber_lookup()->set_tensor(op->tensorVar.getName());
+            new_op->mutable_fiber_lookup()->set_mode(op->mode);
+            new_op->mutable_fiber_lookup()->set_index(op->i.getName());
+            new_op->mutable_fiber_lookup()->set_label(op->getName());
+            id_to_op[op->nodeID] = new_op;
+
+            // os << tab;
+            // os << to_string(op->nodeID) << " [comment=" << comment.str();
+            // if (prettyPrint) {
+            //     os << " label=\"" << op->getName() << "\"";
+            //     os << " color=green4 shape=box style=filled";
+            // }
+            // if (printAttributes) {
+            //     os << " type=\"fiberlookup\""
+            //           " index=\"" << op->i.getName() << "\"" <<
+            //           " tensor=\"" << op->tensorVar.getName() << "\"" <<
+            //           " mode=\"" << std::to_string(op->mode) << "\"" <<
+            //           " format=\"" << op->modeFormat.getName() << "\"" <<
+            //           " src=\"" << (op->source ? "true" : "false") << "\"" <<
+            //           " root=\"" << (op->root ? "true" : "false") << "\"";
+            // }
+            // os << "]" << endl;
 
             if (op->out_crd.defined()) {
                 op->out_crd.accept(this);
@@ -165,47 +187,69 @@ namespace sam {
             string sink = op->sink ? ",sink=true" : ",sink=false";
 
             std::stringstream comment;
+
+            Operation *new_op = pg.add_operators();
+            new_op->set_id(op->nodeID);
+
             if (op->vals) {
-                comment << "\"type=fiberwrite,mode=vals" << ",tensor=" << op->tensorVar.getName() <<
-                ",size=" << op->maxCrdSize <<
-                sink << "\"";
+                // comment << "\"type=fiberwrite,mode=vals" << ",tensor=" << op->tensorVar.getName() <<
+                // ",size=" << op->maxCrdSize <<
+                // sink << "\"";
+
+                new_op->set_name("valwrite");
+                new_op->mutable_val_write()->set_tensor(op->tensorVar.getName());
+                new_op->mutable_val_write()->set_sink(op->sink);
+                new_op->mutable_val_write()->set_crdsize(op->maxCrdSize);
+                new_op->mutable_val_write()->set_label(op->getName());
+                // Hardcoding the valwrite values since it doesn't have a nodeID
+                id_to_op[val_writer_id] = new_op;
             } else {
-                comment << "\"type=fiberwrite,index=" << op->i.getName() << ",tensor=" << op->tensorVar.getName()
-                        << ",mode=" << std::to_string(op->mode)
-                        << ",format=" << op->modeFormat.getName();
+                // comment << "\"type=fiberwrite,index=" << op->i.getName() << ",tensor=" << op->tensorVar.getName()
+                //         << ",mode=" << std::to_string(op->mode)
+                //         << ",format=" << op->modeFormat.getName();
                 if (op->modeFormat == compressed) {
-                    comment << ",segsize=" << op->maxSegSize
-                            << ",crdsize=" << op->maxCrdSize;
+                    // comment << ",segsize=" << op->maxSegSize
+                    //         << ",crdsize=" << op->maxCrdSize;
+                    new_op->mutable_fiber_write()->set_crdsize(op->maxCrdSize);
+                    new_op->mutable_fiber_write()->set_segsize(op->maxSegSize);
                 }
-                comment << sink << "\"";
+                // comment << sink << "\"";
+                new_op->set_name("fiberwrite");
+                // new_op->set_id(op->nodeID);
+                new_op->mutable_fiber_write()->set_tensor(op->tensorVar.getName());
+                new_op->mutable_fiber_write()->set_index(op->i.getName());
+                new_op->mutable_fiber_write()->set_sink(op->sink);
+                new_op->mutable_fiber_write()->set_label(op->getName());
+                new_op->mutable_fiber_write()->set_format(op->modeFormat.getName());
+                id_to_op[op->nodeID] = new_op;
             }
 
-            os << tab;
-            os << to_string(op->nodeID) << " [comment=" << comment.str();
-            if (prettyPrint) {
-                os << " label=\"" << op->getName() << "\"";
-                os << " color=green3 shape=box style=filled";
-            }
-            if (printAttributes) {
-                os << " type=\"fiberwrite\"";
-                if (op->vals) {
-                    os << " tensor=\"" << op->tensorVar.getName() << "\"" <<
-                          " mode=\"vals\"" <<
-                          " size=\"" << op->maxCrdSize << "\"";
-                } else {
-                    os << " index=\"" << op->i.getName() << "\"" <<
-                          " tensor=\"" << op->tensorVar.getName() << "\"" <<
-                          " mode=\"" << std::to_string(op->mode) << "\"" <<
-                          " format=\"" << op->modeFormat.getName() << "\"";
-                    if (op->modeFormat == compressed) {
-                        os << " segsize=\"" << op->maxSegSize << "\"" <<
-                              " crdsize=\"" << op->maxCrdSize << "\"";
-                    }
-                }
-                os << " sink=" << (op->sink ? "\"true\"" : "\"false\"");
+            // os << tab;
+            // os << to_string(op->nodeID) << " [comment=" << comment.str();
+            // if (prettyPrint) {
+            //     os << " label=\"" << op->getName() << "\"";
+            //     os << " color=green3 shape=box style=filled";
+            // }
+            // if (printAttributes) {
+            //     os << " type=\"fiberwrite\"";
+            //     if (op->vals) {
+            //         os << " tensor=\"" << op->tensorVar.getName() << "\"" <<
+            //               " mode=\"vals\"" <<
+            //               " size=\"" << op->maxCrdSize << "\"";
+            //     } else {
+            //         os << " index=\"" << op->i.getName() << "\"" <<
+            //               " tensor=\"" << op->tensorVar.getName() << "\"" <<
+            //               " mode=\"" << std::to_string(op->mode) << "\"" <<
+            //               " format=\"" << op->modeFormat.getName() << "\"";
+            //         if (op->modeFormat == compressed) {
+            //             os << " segsize=\"" << op->maxSegSize << "\"" <<
+            //                   " crdsize=\"" << op->maxCrdSize << "\"";
+            //         }
+            //     }
+            //     os << " sink=" << (op->sink ? "\"true\"" : "\"false\"");
 
-            }
-            os << "]" << endl;
+            // }
+            // os << "]" << endl;
         }
         printedNodes.push_back(op->nodeID);
     }
@@ -214,22 +258,31 @@ namespace sam {
         if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0) {
             string root = op->root ? ",root=true" : ",root=false";
 
-            std::stringstream comment;
-            comment << "\"type=repeat,index=" << op->i.getName() << ",tensor=" << op->tensorVar.getName() << root << "\"";
+            Operation *new_op = pg.add_operators();
+            new_op->set_name("repeat");
+            new_op->set_id(op->nodeID);
+            new_op->mutable_repeat()->set_label(op->getName());
+            new_op->mutable_repeat()->set_index(op->i.getName());
+            new_op->mutable_repeat()->set_root(op->root);
+            new_op->mutable_repeat()->set_tensor(op->tensorVar.getName());
+            id_to_op[op->nodeID] = new_op;
 
-            os << tab;
-            os << to_string(op->nodeID) << " [comment=" << comment.str();
-            if (prettyPrint) {
-                os << " label=\"" << op->getName() << "\"";
-                os << " color=cyan2 shape=box style=filled";
-            }
-            if (printAttributes) {
-                os << " type=\"repeat\""
-                      " index=\"" << op->i.getName() << "\"" <<
-                      " tensor=\"" << op->tensorVar.getName() << "\"" <<
-                      " root=\"" << (op->root ? "true" : "false") << "\"";
-            }
-            os << "]" << endl;
+            std::stringstream comment;
+            // comment << "\"type=repeat,index=" << op->i.getName() << ",tensor=" << op->tensorVar.getName() << root << "\"";
+
+            // os << tab;
+            // os << to_string(op->nodeID) << " [comment=" << comment.str();
+            // if (prettyPrint) {
+            //     os << " label=\"" << op->getName() << "\"";
+            //     os << " color=cyan2 shape=box style=filled";
+            // }
+            // if (printAttributes) {
+            //     os << " type=\"repeat\""
+            //           " index=\"" << op->i.getName() << "\"" <<
+            //           " tensor=\"" << op->tensorVar.getName() << "\"" <<
+            //           " root=\"" << (op->root ? "true" : "false") << "\"";
+            // }
+            // os << "]" << endl;
 
             if (op->out_ref.defined()) {
                 op->out_ref.accept(this);
@@ -242,19 +295,26 @@ namespace sam {
         if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0) {
 
             std::stringstream comment;
-            comment << "\"type=repsiggen,index=" << op->i.getName() << "\"";
+            // comment << "\"type=repsiggen,index=" << op->i.getName() << "\"";
 
-            os << tab;
-            os << to_string(op->nodeID) << " [comment=" << comment.str();
-            if (prettyPrint) {
-                os << " label=\"" << op->getName() << "\"";
-                os << " color=cyan3 shape=box style=filled";
-            }
-            if (printAttributes) {
-                os << " type=\"repsiggen\""
-                      " index=\"" << op->i.getName() << "\"";
-            }
-            os << "]" << endl;
+            Operation *new_op = pg.add_operators();
+            new_op->set_name("repsiggen");
+            new_op->set_id(op->nodeID);
+            new_op->mutable_repeatsig()->set_label(op->getName());
+            new_op->mutable_repeatsig()->set_index(op->i.getName());
+            id_to_op[op->nodeID] = new_op;
+
+            // os << tab;
+            // os << to_string(op->nodeID) << " [comment=" << comment.str();
+            // if (prettyPrint) {
+            //     os << " label=\"" << op->getName() << "\"";
+            //     os << " color=cyan3 shape=box style=filled";
+            // }
+            // if (printAttributes) {
+            //     os << " type=\"repsiggen\""
+            //           " index=\"" << op->i.getName() << "\"";
+            // }
+            // os << "]" << endl;
 
             if (op->out_repsig.defined()) {
                 op->out_repsig.accept(this);
@@ -266,19 +326,33 @@ namespace sam {
     void SAMDotNodePrinter::visit(const JoinerNode *op) {
         if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0) {
             std::stringstream comment;
-            comment << "\"type=" << op->getNodeName() << ",index=" << op->i.getName() << "\"";
+            // comment << "\"type=" << op->getNodeName() << ",index=" << op->i.getName() << "\"";
 
-            os << tab;
-            os << to_string(op->nodeID) << " [comment=" << comment.str();
-            if (prettyPrint) {
-                os << " label=\"" << op->getName() << "\"";
-                os << " color=purple shape=box style=filled";
+            Operation *new_op = pg.add_operators();
+            new_op->set_name(op->getNodeName());
+            new_op->set_id(op->nodeID);
+            if (op->getNodeName() == "intersect") {
+                new_op->mutable_joiner()->set_join_type(Joiner_Type_INTERSECT);
             }
-            if (printAttributes) {
-                os << " type=\"" << op->getNodeName() << "\""
-                      " index=\"" << op->i.getName() << "\"";
+            else {
+                new_op->mutable_joiner()->set_join_type(Joiner_Type_UNION);
             }
-            os << "]" << endl;
+            new_op->mutable_joiner()->set_label(op->getName());
+            new_op->mutable_joiner()->set_index(op->i.getName());
+            id_to_op[op->nodeID] = new_op;
+
+
+            // os << tab;
+            // os << to_string(op->nodeID) << " [comment=" << comment.str();
+            // if (prettyPrint) {
+            //     os << " label=\"" << op->getName() << "\"";
+            //     os << " color=purple shape=box style=filled";
+            // }
+            // if (printAttributes) {
+            //     os << " type=\"" << op->getNodeName() << "\""
+            //           " index=\"" << op->i.getName() << "\"";
+            // }
+            // os << "]" << endl;
 
             if (op->out_crd.defined()) {
                 op->out_crd.accept(this);
@@ -295,19 +369,28 @@ namespace sam {
     void SAMDotNodePrinter::visit(const ArrayNode *op) {
         if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0) {
             std::stringstream comment;
-            comment << "\"type=arrayvals,tensor=" << op->tensorVar.getName() << "\"";
+            // comment << "\"type=arrayvals,tensor=" << op->tensorVar.getName() << "\"";
 
-            os << tab;
-            os << to_string(op->nodeID) << " [comment=" << comment.str();
-            if (prettyPrint) {
-                os << " label=\"" << op->getName() << "\"";
-                os << " color=green2 shape=box style=filled";
-            }
-            if (printAttributes) {
-                os << " type=\"arrayvals\""
-                      " tensor=\"" << op->tensorVar.getName() << "\"";
-            }
-            os << "]" << endl;
+            Operation *new_op = pg.add_operators();
+            new_op->set_name("arrayvals");
+            new_op->set_id(op->nodeID);
+            new_op->mutable_array()->set_tensor("arrayvals");
+            new_op->mutable_array()->set_label(op->getName());
+            id_to_op[op->nodeID] = new_op;
+            // new_op->mutable_array()->mutable_in_ref()->set_id(op->nodeID);
+            // new_op->mutable_array()->mutable_out_val()->set_id(op->nodeID);
+
+            // os << tab;
+            // os << to_string(op->nodeID) << " [comment=" << comment.str();
+            // if (prettyPrint) {
+            //     os << " label=\"" << op->getName() << "\"";
+            //     os << " color=green2 shape=box style=filled";
+            // }
+            // if (printAttributes) {
+            //     os << " type=\"arrayvals\""
+            //           " tensor=\"" << op->tensorVar.getName() << "\"";
+            // }
+            // os << "]" << endl;
 
             if (op->out_val.defined()) {
                 op->out_val.accept(this);
@@ -320,18 +403,40 @@ namespace sam {
     void SAMDotNodePrinter::visit(const ComputeNode *op) {
         if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0) {
             std::stringstream comment;
-            comment << "\"type=" << op->getNodeName() <<"\"";
+            // comment << "\"type=" << op->getNodeName() <<"\"";
 
-            os << tab;
-            os << to_string(op->nodeID) << " [comment=" << comment.str();
-            if (prettyPrint) {
-                os << " label=\"" << op->getName() << "\"";
-                os << " color=brown shape=box style=filled";
+            Operation *new_op = pg.add_operators();
+            new_op->set_name(op->getNodeName());
+            new_op->set_id(op->nodeID);
+            if (op->getNodeName() != "reduce") {
+                ALU_Stage *new_stage = new_op->mutable_alu()->add_stages();
+                if (op->getNodeName() == "mul") {
+                    new_stage->set_op(ALU_ALUOp_MUL);
+                } else if (op->getNodeName() == "div") {
+                    new_stage->set_op(ALU_ALUOp_DIV);
+                }
+                new_stage->add_inputs(0);
+                new_stage->add_inputs(1);
+                new_stage->set_output(0);
+                new_op->mutable_alu()->set_output_val(0);
+                new_op->mutable_alu()->set_label(op->getName());
             }
-            if (printAttributes) {
-                os << " type=\"" << op->getNodeName() << "\"";
-            }
-            os << "]" << endl;
+            // else {
+            //     cout << op->getNodeName() << endl;
+            //     exit(0);
+            // }
+            id_to_op[op->nodeID] = new_op;
+
+            // os << tab;
+            // os << to_string(op->nodeID) << " [comment=" << comment.str();
+            // if (prettyPrint) {
+            //     os << " label=\"" << op->getName() << "\"";
+            //     os << " color=brown shape=box style=filled";
+            // }
+            // if (printAttributes) {
+            //     os << " type=\"" << op->getNodeName() << "\"";
+            // }
+            // os << "]" << endl;
 
             if (op->out_val.defined()) {
                 op->out_val.accept(this);
@@ -344,23 +449,39 @@ namespace sam {
     void SAMDotNodePrinter::visit(const AddNode *op) {
         if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0) {
             std::stringstream comment;
-            comment << "\"type=" << op->getNodeName() <<",sub=" << op->sub <<"\"";
+            // comment << "\"type=" << op->getNodeName() <<",sub=" << op->sub <<"\"";
 
-            os << tab;
-            os << to_string(op->nodeID) << " [comment=" << comment.str();
-            if (prettyPrint) {
-                os << " label=\"" << op->getName();
-                if (op->sub)
-                    os << "\nsubtract\"";
-                else
-                    os << "\"";
-                os << " color=brown shape=box style=filled";
+            Operation *new_op = pg.add_operators();
+            new_op->set_name(op->getNodeName());
+            new_op->set_id(op->nodeID);
+            ALU_Stage *new_stage = new_op->mutable_alu()->add_stages();
+            if (op->sub) {
+                new_stage->set_op(ALU_ALUOp_SUB);
+            } else {
+                new_stage->set_op(ALU_ALUOp_ADD);
             }
-            if (printAttributes) {
-                os << " type=\"" << op->getNodeName() << "\"";
-                os << " sub=\"" << op->sub << "\"";
-            }
-            os << "]" << endl;
+            new_stage->add_inputs(0);
+            new_stage->add_inputs(1);
+            new_stage->set_output(0);
+            new_op->mutable_alu()->set_output_val(0);
+            new_op->mutable_alu()->set_label(op->getName());
+            id_to_op[op->nodeID] = new_op;
+
+            // os << tab;
+            // os << to_string(op->nodeID) << " [comment=" << comment.str();
+            // if (prettyPrint) {
+            //     os << " label=\"" << op->getName();
+            //     if (op->sub)
+            //         os << "\nsubtract\"";
+            //     else
+            //         os << "\"";
+            //     os << " color=brown shape=box style=filled";
+            // }
+            // if (printAttributes) {
+            //     os << " type=\"" << op->getNodeName() << "\"";
+            //     os << " sub=\"" << op->sub << "\"";
+            // }
+            // os << "]" << endl;
 
             if (op->out_val.defined()) {
                 op->out_val.accept(this);
@@ -373,30 +494,44 @@ namespace sam {
     void SAMDotNodePrinter::visit(const SparseAccumulatorNode *op) {
         if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0) {
             std::stringstream comment;
-            comment << "\"type=" << op->getNodeName() <<",order=" << op->order;
-            for (auto ivar : op->ivarMap) {
-                comment << ",in" << to_string(ivar.first) << "=" << ivar.second.getName();
-            }
-            comment << "\"";
+            // comment << "\"type=" << op->getNodeName() <<",order=" << op->order;
 
-            os << tab;
-            os << to_string(op->nodeID) << " [comment=" << comment.str();
-            if (prettyPrint) {
-                os << " label=\"" << op->getName() << "\n";
-                for (auto ivar : op->ivarMap) {
-                    os << to_string(ivar.first) << "=" << ivar.second.getName() << " ";
-                }
-                os << "\"";
-                os << " color=brown shape=box style=filled";
-            }
-            if (printAttributes) {
-                os << " type=\"" << op->getNodeName() << "\"" <<
-                      " order=\"" << op->order << "\"";
-                for (auto ivar : op->ivarMap) {
-                    os << " in" << to_string(ivar.first) << "=\"" << ivar.second.getName() << "\"";
+            Operation *new_op = pg.add_operators();
+            new_op->set_name(op->getNodeName());
+            new_op->set_id(op->nodeID);
+
+            for (auto ivar : op->ivarMap) {
+                // comment << ",in" << to_string(ivar.first) << "=" << ivar.second.getName();
+                if (to_string(ivar.first) == "0") {
+                    new_op->mutable_spacc()->set_inner_crd(ivar.second.getName());
+                } else {
+                    new_op->mutable_spacc()->add_outer_crd(ivar.second.getName());
                 }
             }
-            os << "]" << endl;
+            // comment << "\"";
+
+            new_op->mutable_spacc()->set_label(op->getName());
+            new_op->mutable_spacc()->set_order(op->order);
+            id_to_op[op->nodeID] = new_op;
+
+            // os << tab;
+            // os << to_string(op->nodeID) << " [comment=" << comment.str();
+            // if (prettyPrint) {
+            //     os << " label=\"" << op->getName() << "\n";
+            //     for (auto ivar : op->ivarMap) {
+            //         os << to_string(ivar.first) << "=" << ivar.second.getName() << " ";
+            //     }
+            //     os << "\"";
+            //     os << " color=brown shape=box style=filled";
+            // }
+            // if (printAttributes) {
+            //     os << " type=\"" << op->getNodeName() << "\"" <<
+            //           " order=\"" << op->order << "\"";
+            //     for (auto ivar : op->ivarMap) {
+            //         os << " in" << to_string(ivar.first) << "=\"" << ivar.second.getName() << "\"";
+            //     }
+            // }
+            // os << "]" << endl;
 
             if (op->out_val.defined()) {
                 op->out_val.accept(this);
@@ -413,21 +548,30 @@ namespace sam {
     void SAMDotNodePrinter::visit(const CrdDropNode *op) {
         if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0) {
             std::stringstream comment;
-            comment << "\"type=crddrop,outer=" << op->outer << ",inner=" << op->inner << "\"";
+            // comment << "\"type=crddrop,outer=" << op->outer << ",inner=" << op->inner << "\"";
 
-            os << tab;
-            os << to_string(op->nodeID) << " [comment=" << comment.str();
-            if (prettyPrint) {
-                os << " label=\"" << op->getName() << "\"";
-                os << " color=orange shape=box style=filled";
-            }
-            if (printAttributes) {
-                os <<   " type=\"" << "crddrop" << "\"" <<
-                        " outer=\"" << op->outer.getName() << "\"" <<
-                        " inner=\"" << op->inner.getName() << "\"";
+            Operation *new_op = pg.add_operators();
+            new_op->set_name("crddrop");
+            new_op->set_id(op->nodeID);
+            new_op->mutable_coord_drop()->set_inner_crd(op->inner.getName());
+            new_op->mutable_coord_drop()->set_outer_crd(op->outer.getName());
+            new_op->mutable_coord_drop()->set_label(op->getName());
+            id_to_op[op->nodeID] = new_op;
+            // new_op->mutable_array()->set_label(op->getName());
 
-            }
-            os << "]" << endl;
+            // os << tab;
+            // os << to_string(op->nodeID) << " [comment=" << comment.str();
+            // if (prettyPrint) {
+            //     os << " label=\"" << op->getName() << "\"";
+            //     os << " color=orange shape=box style=filled";
+            // }
+            // if (printAttributes) {
+            //     os <<   " type=\"" << "crddrop" << "\"" <<
+            //             " outer=\"" << op->outer.getName() << "\"" <<
+            //             " inner=\"" << op->inner.getName() << "\"";
+
+            // }
+            // os << "]" << endl;
 
             if (op->out_outer_crd.defined()) {
                 op->out_outer_crd.accept(this);
@@ -443,21 +587,30 @@ namespace sam {
     void SAMDotNodePrinter::visit(const CrdHoldNode *op) {
         if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0) {
             std::stringstream comment;
-            comment << "\"type=crdhold,outer=" << op->outer << ",inner=" << op->inner << "\"";
+            // comment << "\"type=crdhold,outer=" << op->outer << ",inner=" << op->inner << "\"";
 
-            os << tab;
-            os << to_string(op->nodeID) << " [comment=" << comment.str();
-            if (prettyPrint) {
-                os << " label=\"" << op->getName() << "\nouter="<< op->outer << ",inner=" << op->inner << "\"";
-                os << " color=orange shape=box style=filled";
-            }
-            if (printAttributes) {
-                os <<   " type=\"" << "crdhold" << "\"" <<
-                   " outer=\"" << op->outer.getName() << "\"" <<
-                   " inner=\"" << op->inner.getName() << "\"";
+            Operation *new_op = pg.add_operators();
+            new_op->set_name("crdhold");
+            new_op->set_id(op->nodeID);
+            new_op->mutable_coord_hold()->set_inner_crd(op->inner.getName());
+            new_op->mutable_coord_hold()->set_outer_crd(op->outer.getName());
+            new_op->mutable_coord_hold()->set_label(op->getName());
 
-            }
-            os << "]" << endl;
+            id_to_op[op->nodeID] = new_op;
+
+            // os << tab;
+            // os << to_string(op->nodeID) << " [comment=" << comment.str();
+            // if (prettyPrint) {
+            //     os << " label=\"" << op->getName() << "\nouter="<< op->outer << ",inner=" << op->inner << "\"";
+            //     os << " color=orange shape=box style=filled";
+            // }
+            // if (printAttributes) {
+            //     os <<   " type=\"" << "crdhold" << "\"" <<
+            //        " outer=\"" << op->outer.getName() << "\"" <<
+            //        " inner=\"" << op->inner.getName() << "\"";
+
+            // }
+            // os << "]" << endl;
 
             if (op->out_outer_crd.defined()) {
                 op->out_outer_crd.accept(this);
@@ -477,19 +630,47 @@ namespace sam {
     // SAM Dot Edge Printer
     void SAMDotEdgePrinter::print(const SamIR &sam) {
         sam.accept(this);
+        std::string str;
+        google::protobuf::TextFormat::PrintToString(pg, &str);
+        // printf("%s", str.c_str());
+        os << str << endl;
+
+        // const char *filename = "./test.prototxt";
+        // int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        // if (fd == -1)
+        //     cout << "File not found: " << filename;
+
+        // google::protobuf::io::FileOutputStream* output = new google::protobuf::io::FileOutputStream(os);
+        // // google::protobuf::io::OstreamOutputStream* output = new google::protobuf::io::OstreamOutputStream(os);
+        // if (!google::protobuf::TextFormat::Print(pg, output)) {
+        //     cerr << "Error writing text proto to file" << endl;
+        // }
+        // output->Flush();
+        // close(fd);
     }
 
     void SAMDotEdgePrinter::visit(const RootNode *op) {
         for (const auto& node : op->nodes) {
+            // curr_op = id_to_op[op->nodeID];
             node.accept(this);
         }
-        os << "}" << endl;
+        // os << "}" << endl;
     }
 
     void SAMDotEdgePrinter::visit(const BroadcastNode *op) {
         if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0) {
             string ss = printerHelper();
-            os << op->nodeID << ss << endl;
+            // os << op->nodeID << ss << endl;
+
+            if (op->type == SamEdgeType::crd) {
+                id_to_op[op->nodeID]->mutable_broadcast()->mutable_input()->set_name(label);
+                if (curr_op) {
+                    id_to_op[op->nodeID]->mutable_broadcast()->mutable_input()->mutable_id()->set_id(curr_op->id());
+                    // cout << id_to_op[op->nodeID]->name() << curr_op->id() << endl;
+                    // cout << id_to_op[op->nodeID]->mutable_broadcast()->mutable_input()->name() << endl;
+                }
+
+            }
 
             for (SamIR node: op->outputs) {
                 if (node.defined()) {
@@ -512,7 +693,8 @@ namespace sam {
                             edgeType = "";
                             break;
                     }
-                    os << tab << op->nodeID << " -> ";
+                    // os << tab << op->nodeID << " -> ";
+                    curr_op = id_to_op[op->nodeID];
                     node.accept(this);
                 }
             }
@@ -524,16 +706,22 @@ namespace sam {
     void SAMDotEdgePrinter::visit(const FiberLookupNode *op) {
         if (!op->root) {
             string ss = printerHelper();
-            os << op->nodeID << ss << endl;
+            // os << op->nodeID << ss << endl;
+            id_to_op[op->nodeID]->mutable_fiber_lookup()->mutable_input_ref()->set_name(label);
+            if (curr_op) {
+                id_to_op[op->nodeID]->mutable_fiber_lookup()->mutable_input_ref()->mutable_id()->set_id(curr_op->id());
+            }
         }
 
         if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0) {
 
+            // os << "INSIDE COUNT FOUND" << endl;
             if (op->out_crd.defined()) {
                 printComment = op->printEdgeName;
                 comment = contains(op->edgeName, op->out_crd) ? op->edgeName.at(op->out_crd) : "";
                 edgeType = "crd";
-                os << tab << op->nodeID << " -> ";
+                // os << tab << op->nodeID << " -> ";
+                curr_op = id_to_op[op->nodeID];
                 op->out_crd.accept(this);
             }
 
@@ -541,7 +729,8 @@ namespace sam {
                 printComment = op->printEdgeName;
                 comment = contains(op->edgeName, op->out_ref) ? op->edgeName.at(op->out_ref) : "";
                 edgeType = "ref";
-                os << tab << op->nodeID << " -> ";
+                // os << tab << op->nodeID << " -> ";
+                curr_op = id_to_op[op->nodeID];
                 op->out_ref.accept(this);
             }
 
@@ -553,7 +742,20 @@ namespace sam {
 
     void SAMDotEdgePrinter::visit(const FiberWriteNode *op) {
         string ss = printerHelper();
-        os << op->nodeID << ss << endl;
+        // os << op->nodeID << ss << endl;
+
+        if (!op->vals) {
+            id_to_op[op->nodeID]->mutable_fiber_write()->mutable_input_crd()->set_name(label);
+            if (curr_op) {
+                id_to_op[op->nodeID]->mutable_fiber_write()->mutable_input_crd()->mutable_id()->set_id(curr_op->id());
+            }
+        }
+        else {
+            id_to_op[val_writer_id]->mutable_val_write()->mutable_input_val()->set_name(label);
+            if (curr_op) {
+                id_to_op[val_writer_id]->mutable_val_write()->mutable_input_val()->mutable_id()->set_id(curr_op->id());
+            }
+        }
 
         edgeType = "";
 
@@ -562,12 +764,26 @@ namespace sam {
 
     void SAMDotEdgePrinter::visit(const RepeatNode *op) {
         string ss = printerHelper();
-        os << op->nodeID << ss << endl;
+        // os << op->nodeID << ss << endl;
+
+        if (curr_op->name() == "repsiggen") {
+            id_to_op[op->nodeID]->mutable_repeat()->mutable_input_rep_sig()->set_name(label);
+            if (curr_op) {
+                id_to_op[op->nodeID]->mutable_repeat()->mutable_input_rep_sig()->mutable_id()->set_id(curr_op->id());
+            }
+        } else {
+            id_to_op[op->nodeID]->mutable_repeat()->mutable_input_ref()->set_name(label);
+            if (curr_op) {
+                id_to_op[op->nodeID]->mutable_repeat()->mutable_input_ref()->mutable_id()->set_id(curr_op->id());
+            }
+        }
+
 
         if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0) {
             if (op->out_ref.defined()) {
                 edgeType = "ref";
-                os << tab << op->nodeID << " -> ";
+                // os << tab << op->nodeID << " -> ";
+                curr_op = id_to_op[op->nodeID];
                 op->out_ref.accept(this);
             }
             edgeType = "";
@@ -577,12 +793,18 @@ namespace sam {
 
     void SAMDotEdgePrinter::visit(const RepeatSigGenNode *op) {
         string ss = printerHelper();
-        os << op->nodeID << ss << endl;
+        // os << op->nodeID << ss << endl;
+
+        id_to_op[op->nodeID]->mutable_repeatsig()->mutable_input_crd()->set_name(label);
+        if (curr_op) {
+            id_to_op[op->nodeID]->mutable_repeatsig()->mutable_input_crd()->mutable_id()->set_id(curr_op->id());
+        }
 
         if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0) {
             if (op->out_repsig.defined()) {
                 edgeType = "repsig";
-                os << tab << op->nodeID << " -> ";
+                // os << tab << op->nodeID << " -> ";
+                curr_op = id_to_op[op->nodeID];
                 op->out_repsig.accept(this);
             }
             edgeType = "";
@@ -592,7 +814,42 @@ namespace sam {
 
     void SAMDotEdgePrinter::visit(const JoinerNode *op) {
         string ss = printerHelper();
-        os << op->nodeID << ss << endl;
+        // os << op->nodeID << ss << endl;
+
+        if (edgeType == "ref") {
+            int num_pairs = id_to_op[op->nodeID]->mutable_joiner()->input_pairs_size();
+            Joiner::JoinBundle *bundle;
+            if (num_pairs == 0 || full_joiner == 2) {
+                bundle = id_to_op[op->nodeID]->mutable_joiner()->add_input_pairs();
+                full_joiner = 0;
+                num_pairs++;
+            } 
+            bundle = id_to_op[op->nodeID]->mutable_joiner()->mutable_input_pairs(num_pairs - 1);
+            if (curr_op) {
+                bundle->mutable_ref()->mutable_id()->set_id(curr_op->id());
+                bundle->mutable_ref()->set_name(label);
+                full_joiner += 1;
+            }
+        } else {
+            int num_pairs = id_to_op[op->nodeID]->mutable_joiner()->input_pairs_size();
+            Joiner::JoinBundle *bundle;
+            if (num_pairs == 0 || full_joiner == 2) {
+                bundle = id_to_op[op->nodeID]->mutable_joiner()->add_input_pairs();
+                full_joiner = 0;
+                num_pairs++;
+            } 
+            // if (id_to_op[op->nodeID]->mutable_joiner()->mutable_input_pairs(num_pairs - 1)->has_ref() && 
+            //     id_to_op[op->nodeID]->mutable_joiner()->mutable_input_pairs(num_pairs - 1)->has_crd()) {
+            //     cout << "Adding new node!!" << endl;
+            //     bundle = id_to_op[op->nodeID]->mutable_joiner()->add_input_pairs();
+            // }
+            bundle = id_to_op[op->nodeID]->mutable_joiner()->mutable_input_pairs(num_pairs - 1);
+            if (curr_op) {
+                bundle->mutable_crd()->mutable_id()->set_id(curr_op->id());
+                bundle->mutable_crd()->set_name(label);
+                full_joiner += 1;
+            }
+        }
 
         if (edgeType == "ref") {
             auto op_addr = (JoinerNode **) &op;
@@ -604,7 +861,8 @@ namespace sam {
                 printComment = op->printEdgeName;
                 comment = op->edgeName;
                 edgeType = "crd";
-                os << tab << op->nodeID << " -> ";
+                // os << tab << op->nodeID << " -> ";
+                curr_op = id_to_op[op->nodeID];
                 op->out_crd.accept(this);
             }
 
@@ -614,7 +872,8 @@ namespace sam {
                     printComment = true;
                     comment = "out-"+out_ref.getTensorName();
                     edgeType = "ref";
-                    os << tab << op->nodeID << " -> ";
+                    // os << tab << op->nodeID << " -> ";
+                    curr_op = id_to_op[op->nodeID];
                     out_ref.accept(this);
                 }
             }
@@ -626,13 +885,19 @@ namespace sam {
     void SAMDotEdgePrinter::visit(const ArrayNode *op) {
         if (!op->root) {
             string ss = printerHelper();
-            os << op->nodeID << ss << endl;
+            // os << op->nodeID << ss << endl;
+        }
+
+        id_to_op[op->nodeID]->mutable_array()->mutable_input_ref()->set_name(label);
+        if (curr_op) {
+            id_to_op[op->nodeID]->mutable_array()->mutable_input_ref()->mutable_id()->set_id(curr_op->id());
         }
 
         if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0) {
             if (op->out_val.defined()) {
                 edgeType = "";
-                os << tab << op->nodeID << " -> ";
+                // os << tab << op->nodeID << " -> ";
+                curr_op = id_to_op[op->nodeID];
                 op->out_val.accept(this);
             }
 
@@ -643,12 +908,31 @@ namespace sam {
 
     void SAMDotEdgePrinter::visit(const ComputeNode *op) {
         string ss = printerHelper();
-        os << op->nodeID << ss << endl;
+        // os << op->nodeID << ss << endl;
+
+        if (op->getNodeName() != "reduce") {
+            ValStream *alu_val = id_to_op[op->nodeID]->mutable_alu()->mutable_vals()->add_inputs();
+            alu_val->set_name(label);
+            if (curr_op) {
+                int num_inputs = id_to_op[op->nodeID]->mutable_alu()->mutable_vals()->inputs_size();
+                id_to_op[op->nodeID]->mutable_alu()->mutable_vals()->mutable_inputs(num_inputs - 1)->mutable_id()->set_id(curr_op->id());
+            }
+        } else {
+            id_to_op[op->nodeID]->mutable_reduce()->mutable_input_val()->set_name(label);
+            if (curr_op) {
+                id_to_op[op->nodeID]->mutable_reduce()->mutable_input_val()->mutable_id()->set_id(curr_op->id());
+            }
+        }
+        // if (id_to_op[op->nodeID]->mutable_alu()->mutable_vals()->inputs_size() == 2) {
+        //     id_to_op[op->nodeID]->mutable_alu()->mutable_vals()->mutable_output()->set_name("out-val");
+        //     // id_to_op[op->nodeID]->mutable_alu()->mutable_vals()->mutable_output()->mutable_id()->set_id();
+        // }
 
         if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0) {
             if (op->out_val.defined()) {
                 edgeType = "";
-                os << tab << op->nodeID << " -> ";
+                // os << tab << op->nodeID << " -> ";
+                curr_op = id_to_op[op->nodeID];
                 op->out_val.accept(this);
             }
 
@@ -659,12 +943,35 @@ namespace sam {
 
     void SAMDotEdgePrinter::visit(const SparseAccumulatorNode *op) {
         string ss = printerHelper();
-        os << op->nodeID << ss << endl;
+        // os << op->nodeID << ss << endl;
+
+        if (edgeType == "crd") {
+            // std::cout << string(&label.back()) << endl;
+            // exit(0);
+            if (string(&label.back()) == id_to_op[op->nodeID]->mutable_spacc()->inner_crd()) {
+                id_to_op[op->nodeID]->mutable_spacc()->mutable_input_inner_crd()->set_name(label);
+                if (curr_op) {
+                    id_to_op[op->nodeID]->mutable_spacc()->mutable_input_inner_crd()->mutable_id()->set_id(curr_op->id());
+                }
+            } else {
+                id_to_op[op->nodeID]->mutable_spacc()->mutable_input_outer_crd()->set_name(label);
+                if (curr_op) {
+                    id_to_op[op->nodeID]->mutable_spacc()->mutable_input_outer_crd()->mutable_id()->set_id(curr_op->id());
+                }
+            }
+        } else {
+            // std::cout << label << endl;
+            id_to_op[op->nodeID]->mutable_spacc()->mutable_input_val()->set_name(label);
+            if (curr_op) {
+                id_to_op[op->nodeID]->mutable_spacc()->mutable_input_val()->mutable_id()->set_id(curr_op->id());
+            }
+        }
 
         if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0) {
             if (op->out_val.defined()) {
                 edgeType = "";
-                os << tab << op->nodeID << " -> ";
+                // os << tab << op->nodeID << " -> ";
+                curr_op = id_to_op[op->nodeID];
                 op->out_val.accept(this);
             }
 
@@ -672,7 +979,8 @@ namespace sam {
                 printComment = true;
                 comment = "out-" + op->ivarMap.at(out_crd.first).getName();
                 edgeType = "crd";
-                os << tab << op->nodeID << " -> ";
+                // os << tab << op->nodeID << " -> ";
+                curr_op = id_to_op[op->nodeID];
                 out_crd.second.accept(this);
             }
 
@@ -684,14 +992,29 @@ namespace sam {
 
     void SAMDotEdgePrinter::visit(const CrdDropNode *op) {
         string ss = printerHelper();
-        os << op->nodeID << ss << endl;
+        // os << op->nodeID << ss << endl;
+
+            // std::cout << string(&label.back()) << endl;
+            // exit(0);
+        if (string(&label.back()) == id_to_op[op->nodeID]->mutable_coord_drop()->inner_crd()) {
+            id_to_op[op->nodeID]->mutable_coord_drop()->mutable_input_inner_crd()->set_name(label);
+            if (curr_op) {
+                id_to_op[op->nodeID]->mutable_coord_drop()->mutable_input_inner_crd()->mutable_id()->set_id(curr_op->id());
+            }
+        } else {
+            id_to_op[op->nodeID]->mutable_coord_drop()->mutable_input_outer_crd()->set_name(label);
+            if (curr_op) {
+                id_to_op[op->nodeID]->mutable_coord_drop()->mutable_input_outer_crd()->mutable_id()->set_id(curr_op->id());
+            }
+        }
 
         if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0) {
             if (op->out_outer_crd.defined()) {
                 edgeType = "crd";
                 printComment = true;
                 comment = "outer-"+op->outer.getName();
-                os << tab << op->nodeID << " -> ";
+                // os << tab << op->nodeID << " -> ";
+                curr_op = id_to_op[op->nodeID];
                 op->out_outer_crd.accept(this);
             }
 
@@ -699,7 +1022,8 @@ namespace sam {
                 edgeType = "crd";
                 printComment = true;
                 comment = "inner-"+op->inner.getName();
-                os << tab << op->nodeID << " -> ";
+                // os << tab << op->nodeID << " -> ";
+                curr_op = id_to_op[op->nodeID];
                 op->out_inner_crd.accept(this);
             }
 
@@ -710,14 +1034,27 @@ namespace sam {
 
     void SAMDotEdgePrinter::visit(const CrdHoldNode *op) {
         string ss = printerHelper();
-        os << op->nodeID << ss << endl;
+        // os << op->nodeID << ss << endl;
+
+        if (string(&label.back()) == id_to_op[op->nodeID]->mutable_coord_hold()->inner_crd()) {
+            id_to_op[op->nodeID]->mutable_coord_hold()->mutable_input_inner_crd()->set_name(label);
+            if (curr_op) {
+                id_to_op[op->nodeID]->mutable_coord_hold()->mutable_input_inner_crd()->mutable_id()->set_id(curr_op->id());
+            }
+        } else {
+            id_to_op[op->nodeID]->mutable_coord_hold()->mutable_input_outer_crd()->set_name(label);
+            if (curr_op) {
+                id_to_op[op->nodeID]->mutable_coord_hold()->mutable_input_outer_crd()->mutable_id()->set_id(curr_op->id());
+            }
+        }
 
         if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0) {
             if (op->out_outer_crd.defined()) {
                 edgeType = "crd";
                 printComment = true;
                 comment = "outer-"+op->outer.getName();
-                os << tab << op->nodeID << " -> ";
+                // os << tab << op->nodeID << " -> ";
+                curr_op = id_to_op[op->nodeID];
                 op->out_outer_crd.accept(this);
             }
 
@@ -725,7 +1062,8 @@ namespace sam {
                 edgeType = "crd";
                 printComment = true;
                 comment = "inner-"+op->inner.getName();
-                os << tab << op->nodeID << " -> ";
+                // os << tab << op->nodeID << " -> ";
+                curr_op = id_to_op[op->nodeID];
                 op->out_inner_crd.accept(this);
             }
 
@@ -736,19 +1074,21 @@ namespace sam {
 
     string SAMDotEdgePrinter::printerHelper() {
         stringstream ss;
-        ss << " [";
+        // ss << " [";
         string labelExt = printComment && !comment.empty() ? "_"+comment : "";
-        ss << "label=\"" << (edgeType.empty() ? "val" : edgeType) << labelExt << "\"";
+        
+        // ss << "label=\"" << (edgeType.empty() ? "val" : edgeType) << labelExt << "\"";
+        label = (edgeType.empty() ? "val" : edgeType) + labelExt;
         if (prettyPrint) {
-            ss << edgeStyle[edgeType];
+            // ss << edgeStyle[edgeType];
         }
         if (printAttributes) {
-            ss << " type=\"" << (edgeType.empty() ? "val" : edgeType) << "\"";
+            // ss << " type=\"" << (edgeType.empty() ? "val" : edgeType) << "\"";
         }
         if (printComment) {
-            ss << " comment=\"" << comment << "\"";
+            // ss << " comment=\"" << comment << "\"";
         }
-        ss << "]";
+        // ss << "]";
 
         printComment = false;
         comment = "";
