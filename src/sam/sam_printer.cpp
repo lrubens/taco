@@ -695,6 +695,11 @@ namespace taco
         {
             sam.accept(this);
             std::string str;
+            std::sort(pg.mutable_operators()->begin(), pg.mutable_operators()->end(),
+                      [](const Operation &a, Operation &b)
+                      {
+                          return a.id() > b.id();
+                      });
             google::protobuf::TextFormat::PrintToString(pg, &str);
             // printf("%s", str.c_str());
             os << str << endl;
@@ -1035,12 +1040,13 @@ namespace taco
             {
                 int num_pairs = id_to_op[op->nodeID + 1]->mutable_joiner()->input_pairs_size();
                 Joiner::JoinBundle *bundle;
-                if (num_pairs == 0 || full_joiner == 2)
+                if (num_pairs == 0 || (full_joiner == 2 && id_to_op[op->nodeID + 1]->mutable_joiner()->mutable_input_pairs(num_pairs - 1)->has_ref()))
                 {
                     bundle = id_to_op[op->nodeID + 1]->mutable_joiner()->add_input_pairs();
                     full_joiner = 0;
                     num_pairs++;
-                }
+                } 
+
                 bundle = id_to_op[op->nodeID + 1]->mutable_joiner()->mutable_input_pairs(num_pairs - 1);
                 if (curr_op)
                 {
@@ -1053,7 +1059,7 @@ namespace taco
             {
                 int num_pairs = id_to_op[op->nodeID + 1]->mutable_joiner()->input_pairs_size();
                 Joiner::JoinBundle *bundle;
-                if (num_pairs == 0 || full_joiner == 2)
+                if (num_pairs == 0 || id_to_op[op->nodeID + 1]->mutable_joiner()->mutable_input_pairs(num_pairs - 1)->has_crd())
                 {
                     bundle = id_to_op[op->nodeID + 1]->mutable_joiner()->add_input_pairs();
                     full_joiner = 0;

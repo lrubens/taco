@@ -8,6 +8,7 @@
 #include <ostream>
 #include <map>
 #include <vector>
+#include <algorithm>
 #include "sam_visitor.h"
 #include "tortilla.pb.h"
 #include "stream.pb.h"
