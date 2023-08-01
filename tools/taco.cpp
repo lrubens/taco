@@ -1417,12 +1417,12 @@ int main(int argc, char* argv[]) {
       cout << "SAM GRAPH" << endl;
 
       cout << endl << endl;
-      samGraph.printInputIterationAsDot(cout);
+      // samGraph.printInputIterationAsDot(cout);
       if (!samFileName.empty()) {
           ofstream samFile; // outdata is like cin
           samFile.open(samFileName); // opens the file
           taco_uassert((bool)samFile) << "Error: file could not be opened" << endl;
-          samGraph.printInputIterationAsDot(samFile);
+          samGraph.printInputIterationAsProto(samFile);
       }
 
       hasPrinted = true;
