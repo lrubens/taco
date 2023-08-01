@@ -26,7 +26,7 @@ message Operation {
 
 message Broadcast {
   CrdStream input = 1;
-  // repeated CrdStream outputs = 2;
+  repeated CrdStream outputs = 2;
   string label = 3;
 }
 
@@ -47,16 +47,16 @@ message Joiner {
   repeated JoinBundle input_pairs = 2;
   string index = 3;
   string label = 4;
-  // RefStream output_ref1 = 5;
-  // RefStream output_ref2 = 6;
-  // CrdStream output_crd = 7;
+  RefStream output_ref1 = 5;
+  RefStream output_ref2 = 6;
+  CrdStream output_crd = 7;
 }
 
 message FiberLookup {
   // bool ref = 1;
   RefStream input_ref = 2;
-  // RefStream output_ref = 3;
-  // CrdStream output_crd = 4;
+  RefStream output_ref = 3;
+  CrdStream output_crd = 4;
   string index = 5;
   string tensor = 6;
   uint64 mode = 7;
@@ -92,7 +92,7 @@ message ValWrite {
 
 message Repeat {
   RefStream input_ref = 1;
-  // RefStream output_ref = 2;
+  RefStream output_ref = 2;
   RepSigStream input_rep_sig = 3;
   string label = 4;
   string index = 5;
@@ -102,7 +102,7 @@ message Repeat {
 
 message RepeatSig {
   CrdStream input_crd = 1;
-  // RepSigStream output_rep_sig = 2;
+  RepSigStream output_rep_sig = 2;
   string label = 3;
   string index = 4;
 }
@@ -110,12 +110,12 @@ message RepeatSig {
 message ALU {
   message Val {
     repeated ValStream inputs = 1;
-    // ValStream output = 2;
+    ValStream output = 2;
   }
 
   message Crd {
     repeated CrdStream inputs = 1;
-    // CrdStream output = 2;
+    CrdStream output = 2;
   }
 
   oneof conn {
@@ -146,29 +146,28 @@ message ALU {
 
 message Reduce {
   ValStream input_val = 1;
-  // ValStream output_val = 2;
+  ValStream output_val = 2;
   string label = 3;
 }
 
 message SparseAccumulator {
   CrdStream input_inner_crd = 1;
-  // CrdStream output_inner_crd = 2;
+  CrdStream output_inner_crd = 2;
   CrdStream input_outer_crd = 3;
   ValStream input_val = 4;
-  // ValStream output_val = 5;
+  ValStream output_val = 5;
   uint64 order = 6;
   string inner_crd = 7;
   repeated string outer_crd = 8;
   string label = 9;
   // string val = 10;
-  //2 [comment="type=spaccumulator,order=1,in0=j,in1=i" label="SparseAccumulator 1 
 }
 
 message CoordHold {
   CrdStream input_inner_crd = 1;
   CrdStream input_outer_crd = 2;
-  // CrdStream output_inner_crd = 3;
-  // CrdStream output_outer_crd = 4;
+  CrdStream output_inner_crd = 3;
+  CrdStream output_outer_crd = 4;
   string inner_crd = 5;
   string outer_crd = 6;
   string label = 7;
@@ -177,8 +176,8 @@ message CoordHold {
 message CoordDrop {
   CrdStream input_inner_crd = 1;
   CrdStream input_outer_crd = 2;
-  // CrdStream output_inner_crd = 3;
-  // CrdStream output_outer_crd = 4;
+  CrdStream output_inner_crd = 3;
+  CrdStream output_outer_crd = 4;
   string inner_crd = 5;
   string outer_crd = 6;
   string label = 7;
@@ -188,14 +187,14 @@ message CoordMask {
   CrdStream input_inner_crd = 1;
   CrdStream input_outer_crd = 2;
   RefStream input_ref = 3;
-  // CrdStream output_inner_crd = 4;
-  // CrdStream output_outer_crd = 5;
-  // RefStream output_ref = 6;
+  CrdStream output_inner_crd = 4;
+  CrdStream output_outer_crd = 5;
+  RefStream output_ref = 6;
 }
 
 message ArrayVals {
   string tensor = 1;
   RefStream input_ref = 2;
-  // ValStream output_val = 3;
+  ValStream output_val = 3;
   string label = 4;
 }

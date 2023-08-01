@@ -106,6 +106,14 @@ namespace sam {
         std::string printTensorFormats(const RootNode *op);
     };
 
+    struct Stream {
+        ValStream *vstream;
+        CrdStream *cstream;
+        RefStream *rstream;
+        RepSigStream *rsigstream;
+        std::string type;
+    };
+
     class SAMDotEdgePrinter : public SAMVisitor {
     public:
         explicit SAMDotEdgePrinter(std::ostream &os) : os(os) {}
@@ -156,6 +164,7 @@ namespace sam {
         int full_joiner;
         int val_writer_id = -1;
         Operation *curr_op;
+        Stream out_stream;
     };
 }
 }
