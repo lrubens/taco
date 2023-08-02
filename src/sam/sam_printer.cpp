@@ -410,7 +410,7 @@ namespace taco
                 Operation *new_op = pg.add_operators();
                 new_op->set_name("arrayvals");
                 new_op->set_id(op->nodeID + 1);
-                new_op->mutable_array()->set_tensor("arrayvals");
+                new_op->mutable_array()->set_tensor(op->tensorVar.getName());
                 new_op->mutable_array()->set_label(op->getName());
                 id_to_op[op->nodeID + 1] = new_op;
                 // new_op->mutable_array()->mutable_in_ref()->set_id(op->nodeID + 1);

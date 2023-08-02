@@ -166,6 +166,8 @@ namespace sam {
         int val_writer_id = -1;
         Operation *curr_op;
         Stream out_stream;
+        int channel = 0;
+        std::map<std::pair<std::string, int>, int> chan_map;
     };
 }
 }
