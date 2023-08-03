@@ -17,8 +17,8 @@
 #include <google/protobuf/text_format.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
-namespace taco {
-namespace sam {
+namespace taco{
+    namespace sam{
     class SAMPrinter : public SAMVisitor {
     public:
         explicit SAMPrinter(std::ostream &os) : os(os) {}
@@ -100,9 +100,6 @@ namespace sam {
         std::string tab = "    ";
         std::string name = "SAM";
         std::vector<int> printedNodes;
-        int val_writer_id = -1;
-        // ProgramGraph pg;
-        // std::map<int, Operation*> id_to_op;
 
         std::string printTensorFormats(const RootNode *op);
     };
@@ -113,6 +110,32 @@ namespace sam {
         RefStream *rstream;
         RepSigStream *rsigstream;
         std::string type;
+    };
+
+    class ChannelTrack {
+        public:
+            ChannelTrack(){};
+            int get_create_channel(std::string label, int id){
+                auto key = std::make_pair(label, id);
+                auto ref = chan_map.find(key);
+                if (ref != chan_map.end()) {
+                    return ref->second;
+                }
+                auto new_ctr = counter++;
+                chan_map[key] = new_ctr;
+                return new_ctr;
+            }
+
+            int create_channel(std::string label, int id) {
+                auto key = std::make_pair(label, id);
+                auto new_ctr = counter++;
+                chan_map[key] = new_ctr;
+                return new_ctr;
+            }
+
+        private:
+            std::map<std::pair<std::string, int>, int> chan_map;
+            int counter = 100;
     };
 
     class SAMDotEdgePrinter : public SAMVisitor {
@@ -162,13 +185,18 @@ namespace sam {
         bool printComment = false;
         std::string comment;
         std::string label;
+
+        std::string curr_comment;
+
         int full_joiner;
         int val_writer_id = -1;
         Operation *curr_op;
         Stream out_stream;
         int channel = 0;
+        ChannelTrack chan_track;
         std::map<std::pair<std::string, int>, int> chan_map;
     };
+
 }
 }
 

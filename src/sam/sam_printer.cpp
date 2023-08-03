@@ -125,7 +125,8 @@ namespace taco
                 new_op->set_id(op->nodeID + 1);
                 new_op->set_name("broadcast");
                 new_op->mutable_broadcast()->set_label("broadcast");
-                id_to_op[op->nodeID + 1] = new_op;
+                // id_to_op[op->nodeID] = new_op;
+                id_to_op[op->nodeID] = new_op;
 
                 // os << tab;
                 // os << to_string(op->nodeID) << " [comment=\"type=broadcast\"";
@@ -170,7 +171,8 @@ namespace taco
                 new_op->mutable_fiber_lookup()->set_mode(op->mode);
                 new_op->mutable_fiber_lookup()->set_index(op->i.getName());
                 new_op->mutable_fiber_lookup()->set_label(op->getName());
-                id_to_op[op->nodeID + 1] = new_op;
+                id_to_op[op->nodeID] = new_op;
+                
 
                 // os << tab;
                 // os << to_string(op->nodeID) << " [comment=" << comment.str();
@@ -212,6 +214,7 @@ namespace taco
 
                 Operation *new_op = pg.add_operators();
                 new_op->set_id(op->nodeID + 1);
+                id_to_op[op->nodeID] = new_op;
 
                 if (op->vals)
                 {
@@ -222,7 +225,7 @@ namespace taco
                     new_op->mutable_val_write()->set_crdsize(op->maxCrdSize);
                     new_op->mutable_val_write()->set_label(op->getName());
                     // Hardcoding the valwrite values since it doesn't have a nodeID
-                    id_to_op[op->nodeID + 1] = new_op;
+                    // id_to_op[op->nodeID] = new_op;
                 }
                 else
                 {
@@ -244,7 +247,6 @@ namespace taco
                     new_op->mutable_fiber_write()->set_sink(op->sink);
                     new_op->mutable_fiber_write()->set_label(op->getName());
                     new_op->mutable_fiber_write()->set_format(op->modeFormat.getName());
-                    id_to_op[op->nodeID + 1] = new_op;
                 }
 
                 // os << tab;
@@ -290,7 +292,8 @@ namespace taco
                 new_op->mutable_repeat()->set_index(op->i.getName());
                 new_op->mutable_repeat()->set_root(op->root);
                 new_op->mutable_repeat()->set_tensor(op->tensorVar.getName());
-                id_to_op[op->nodeID + 1] = new_op;
+                id_to_op[op->nodeID] = new_op;
+                //id_to_op[op->nodeID] = new_op;
 
                 std::stringstream comment;
                 // comment << "\"type=repeat,index=" << op->i.getName() << ",tensor=" << op->tensorVar.getName() << root << "\"";
@@ -330,7 +333,8 @@ namespace taco
                 new_op->set_id(op->nodeID + 1);
                 new_op->mutable_repeatsig()->set_label(op->getName());
                 new_op->mutable_repeatsig()->set_index(op->i.getName());
-                id_to_op[op->nodeID + 1] = new_op;
+                id_to_op[op->nodeID] = new_op;
+                //id_to_op[op->nodeID] = new_op;
 
                 // os << tab;
                 // os << to_string(op->nodeID) << " [comment=" << comment.str();
@@ -362,6 +366,7 @@ namespace taco
                 Operation *new_op = pg.add_operators();
                 new_op->set_name(op->getNodeName());
                 new_op->set_id(op->nodeID + 1);
+                id_to_op[op->nodeID] = new_op;
                 if (op->getNodeName() == "intersect")
                 {
                     new_op->mutable_joiner()->set_join_type(Joiner_Type_INTERSECT);
@@ -372,7 +377,7 @@ namespace taco
                 }
                 new_op->mutable_joiner()->set_label(op->getName());
                 new_op->mutable_joiner()->set_index(op->i.getName());
-                id_to_op[op->nodeID + 1] = new_op;
+                //id_to_op[op->nodeID] = new_op;
 
                 // os << tab;
                 // os << to_string(op->nodeID) << " [comment=" << comment.str();
@@ -412,7 +417,7 @@ namespace taco
                 new_op->set_id(op->nodeID + 1);
                 new_op->mutable_array()->set_tensor(op->tensorVar.getName());
                 new_op->mutable_array()->set_label(op->getName());
-                id_to_op[op->nodeID + 1] = new_op;
+                id_to_op[op->nodeID] = new_op;
                 // new_op->mutable_array()->mutable_in_ref()->set_id(op->nodeID + 1);
                 // new_op->mutable_array()->mutable_out_val()->set_id(op->nodeID + 1);
 
@@ -446,6 +451,7 @@ namespace taco
                 Operation *new_op = pg.add_operators();
                 new_op->set_name(op->getNodeName());
                 new_op->set_id(op->nodeID + 1);
+                id_to_op[op->nodeID] = new_op;
                 if (op->getNodeName() != "reduce")
                 {
                     ALU_Stage *new_stage = new_op->mutable_alu()->add_stages();
@@ -467,7 +473,7 @@ namespace taco
                 //     cout << op->getNodeName() << endl;
                 //     exit(0);
                 // }
-                id_to_op[op->nodeID + 1] = new_op;
+                //id_to_op[op->nodeID] = new_op;
 
                 // os << tab;
                 // os << to_string(op->nodeID) << " [comment=" << comment.str();
@@ -498,6 +504,7 @@ namespace taco
                 Operation *new_op = pg.add_operators();
                 new_op->set_name(op->getNodeName());
                 new_op->set_id(op->nodeID + 1);
+                id_to_op[op->nodeID] = new_op;
                 ALU_Stage *new_stage = new_op->mutable_alu()->add_stages();
                 if (op->sub)
                 {
@@ -512,7 +519,7 @@ namespace taco
                 new_stage->set_output(0);
                 new_op->mutable_alu()->set_output_val(0);
                 new_op->mutable_alu()->set_label(op->getName());
-                id_to_op[op->nodeID + 1] = new_op;
+                //id_to_op[op->nodeID] = new_op;
 
                 // os << tab;
                 // os << to_string(op->nodeID) << " [comment=" << comment.str();
@@ -548,6 +555,7 @@ namespace taco
                 Operation *new_op = pg.add_operators();
                 new_op->set_name(op->getNodeName());
                 new_op->set_id(op->nodeID + 1);
+                id_to_op[op->nodeID] = new_op;
 
                 for (auto ivar : op->ivarMap)
                 {
@@ -565,7 +573,7 @@ namespace taco
 
                 new_op->mutable_spacc()->set_label(op->getName());
                 new_op->mutable_spacc()->set_order(op->order);
-                id_to_op[op->nodeID + 1] = new_op;
+                //id_to_op[op->nodeID] = new_op;
 
                 // os << tab;
                 // os << to_string(op->nodeID) << " [comment=" << comment.str();
@@ -612,7 +620,8 @@ namespace taco
                 new_op->mutable_coord_drop()->set_inner_crd(op->inner.getName());
                 new_op->mutable_coord_drop()->set_outer_crd(op->outer.getName());
                 new_op->mutable_coord_drop()->set_label(op->getName());
-                id_to_op[op->nodeID + 1] = new_op;
+                id_to_op[op->nodeID] = new_op;
+                //id_to_op[op->nodeID] = new_op;
                 // new_op->mutable_array()->set_label(op->getName());
 
                 // os << tab;
@@ -655,8 +664,9 @@ namespace taco
                 new_op->mutable_coord_hold()->set_inner_crd(op->inner.getName());
                 new_op->mutable_coord_hold()->set_outer_crd(op->outer.getName());
                 new_op->mutable_coord_hold()->set_label(op->getName());
+                id_to_op[op->nodeID] = new_op;
 
-                id_to_op[op->nodeID + 1] = new_op;
+                //id_to_op[op->nodeID] = new_op;
 
                 // os << tab;
                 // os << to_string(op->nodeID) << " [comment=" << comment.str();
@@ -722,7 +732,7 @@ namespace taco
         {
             for (const auto &node : op->nodes)
             {
-                // curr_op = id_to_op[op->nodeID + 1];
+                // curr_op = id_to_op[op->nodeID];
                 node.accept(this);
             }
             // os << "}" << endl;
@@ -735,31 +745,29 @@ namespace taco
                 string ss = printerHelper();
                 // os << op->nodeID << ss << endl;
 
-                if (out_stream.type == "crd")
-                {
-                    out_stream.cstream->mutable_id()->set_id(op->nodeID + 1);
-                }
-                else if (out_stream.type == "ref")
-                {
-                    out_stream.rstream->mutable_id()->set_id(op->nodeID + 1);
-                }
-                else if (out_stream.type == "repsig")
-                {
-                    out_stream.rsigstream->mutable_id()->set_id(op->nodeID + 1);
-                }
-                else if (out_stream.type == "val")
-                {
-                    out_stream.vstream->mutable_id()->set_id(op->nodeID + 1);
-                }
+                // if (out_stream.type == "crd")
+                // {
+                //     out_stream.cstream->mutable_id()->set_id(chan_track.get_create_channel("out_crd", op->nodeID));
+                // }
+                // else if (out_stream.type == "ref")
+                // {
+                //     out_stream.rstream->mutable_id()->set_id(chan_track.get_create_channel("out_ref", op->nodeID));
+                // }
+                // else if (out_stream.type == "repsig")
+                // {
+                //     out_stream.rsigstream->mutable_id()->set_id(chan_track.get_create_channel("out_repsig", op->nodeID));
+                // }
+                // else if (out_stream.type == "val")
+                // {
+                //     out_stream.vstream->mutable_id()->set_id(chan_track.get_create_channel("out_val", op->nodeID));
+                // }
 
                 if (op->type == SamEdgeType::crd)
                 {
-                    id_to_op[op->nodeID + 1]->mutable_broadcast()->mutable_input()->set_name(label);
+                    id_to_op[op->nodeID]->mutable_broadcast()->mutable_input()->set_name(label);
                     if (curr_op)
                     {
-                        id_to_op[op->nodeID + 1]->mutable_broadcast()->mutable_input()->mutable_id()->set_id(curr_op->id());
-                        // cout << id_to_op[op->nodeID + 1]->name() << curr_op->id() << endl;
-                        // cout << id_to_op[op->nodeID + 1]->mutable_broadcast()->mutable_input()->name() << endl;
+                        id_to_op[op->nodeID] = id_to_op[curr_op->id() - 1];
                     }
                 }
 
@@ -788,11 +796,7 @@ namespace taco
                             edgeType = "";
                             break;
                         }
-                        // os << tab << op->nodeID << " -> ";
-                        curr_op = id_to_op[op->nodeID + 1];
-                        out_stream.cstream = curr_op->mutable_broadcast()->add_outputs();
-                        out_stream.cstream->set_name(comment);
-                        out_stream.type = edgeType;
+                        curr_op = id_to_op[op->nodeID];
                         node.accept(this);
                     }
                 }
@@ -807,26 +811,12 @@ namespace taco
             {
                 string ss = printerHelper();
                 // os << op->nodeID << ss << endl;
-                if (out_stream.type == "crd")
-                {
-                    out_stream.cstream->mutable_id()->set_id(op->nodeID + 1);
-                }
-                else if (out_stream.type == "ref")
-                {
-                    out_stream.rstream->mutable_id()->set_id(op->nodeID + 1);
-                }
-                else if (out_stream.type == "repsig")
-                {
-                    out_stream.rsigstream->mutable_id()->set_id(op->nodeID + 1);
-                }
-                else if (out_stream.type == "val")
-                {
-                    out_stream.vstream->mutable_id()->set_id(op->nodeID + 1);
-                }
-                id_to_op[op->nodeID + 1]->mutable_fiber_lookup()->mutable_input_ref()->set_name(label);
+                
+
+                id_to_op[op->nodeID]->mutable_fiber_lookup()->mutable_input_ref()->set_name(label);
                 if (curr_op)
                 {
-                    id_to_op[op->nodeID + 1]->mutable_fiber_lookup()->mutable_input_ref()->mutable_id()->set_id(curr_op->id());
+                    id_to_op[op->nodeID]->mutable_fiber_lookup()->mutable_input_ref()->mutable_id()->set_id(chan_track.get_create_channel("out_ref", curr_op->id() - 1));
                 }
             }
 
@@ -840,9 +830,11 @@ namespace taco
                     comment = contains(op->edgeName, op->out_crd) ? op->edgeName.at(op->out_crd) : "";
                     edgeType = "crd";
                     // os << tab << op->nodeID << " -> ";
-                    curr_op = id_to_op[op->nodeID + 1];
+                    curr_op = id_to_op[op->nodeID];
                     out_stream.cstream = curr_op->mutable_fiber_lookup()->mutable_output_crd();
                     out_stream.cstream->set_name(comment);
+                    // chan_map[std::make_pair("out_crd", op->nodeID + 1)];
+                    curr_op->mutable_fiber_lookup()->mutable_output_crd()->mutable_id()->set_id(chan_track.get_create_channel("out_crd", op->nodeID));
                     out_stream.type = edgeType;
                     op->out_crd.accept(this);
                 }
@@ -853,10 +845,8 @@ namespace taco
                     comment = contains(op->edgeName, op->out_ref) ? op->edgeName.at(op->out_ref) : "";
                     edgeType = "ref";
                     // os << tab << op->nodeID << " -> ";
-                    curr_op = id_to_op[op->nodeID + 1];
-                    out_stream.rstream = curr_op->mutable_fiber_lookup()->mutable_output_ref();
-                    out_stream.rstream->set_name(comment);
-                    out_stream.type = edgeType;
+                    curr_op = id_to_op[op->nodeID];
+                    curr_op->mutable_fiber_lookup()->mutable_output_ref()->mutable_id()->set_id(chan_track.get_create_channel("out_ref", op->nodeID));
                     op->out_ref.accept(this);
                 }
 
@@ -870,41 +860,20 @@ namespace taco
             string ss = printerHelper();
             // os << op->nodeID << ss << endl;
 
-
-            if (out_stream.type == "crd")
-            {
-                out_stream.cstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-            else if (out_stream.type == "ref")
-            {
-                out_stream.rstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-            else if (out_stream.type == "repsig")
-            {
-                out_stream.rsigstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-            else if (out_stream.type == "val")
-            {
-                // if (curr_op->name() == "reduce")
-                    // cout << "REDUCE FOUND: " << out_stream.vstream->name() << ": " << op->nodeID << endl;
-                // exit(0);
-                out_stream.vstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-
             if (!op->vals)
             {
-                id_to_op[op->nodeID + 1]->mutable_fiber_write()->mutable_input_crd()->set_name(label);
+                id_to_op[op->nodeID]->mutable_fiber_write()->mutable_input_crd()->set_name(label);
                 if (curr_op)
                 {
-                    id_to_op[op->nodeID + 1]->mutable_fiber_write()->mutable_input_crd()->mutable_id()->set_id(curr_op->id());
+                    id_to_op[op->nodeID]->mutable_fiber_write()->mutable_input_crd()->mutable_id()->set_id(chan_track.get_create_channel("out_crd", curr_op->id() - 1));
                 }
             }
             else
             {
-                id_to_op[op->nodeID + 1]->mutable_val_write()->mutable_input_val()->set_name(label);
+                id_to_op[op->nodeID]->mutable_val_write()->mutable_input_val()->set_name(label);
                 if (curr_op)
                 {
-                    id_to_op[op->nodeID + 1]->mutable_val_write()->mutable_input_val()->mutable_id()->set_id(curr_op->id());
+                    id_to_op[op->nodeID]->mutable_val_write()->mutable_input_val()->mutable_id()->set_id(chan_track.get_create_channel("out_val", curr_op->id() - 1));
                 }
             }
 
@@ -918,37 +887,21 @@ namespace taco
             string ss = printerHelper();
             // os << op->nodeID << ss << endl;
 
-            if (out_stream.type == "crd")
-            {
-                out_stream.cstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-            else if (out_stream.type == "ref")
-            {
-                out_stream.rstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-            else if (out_stream.type == "repsig")
-            {
-                out_stream.rsigstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-            else if (out_stream.type == "val")
-            {
-                out_stream.vstream->mutable_id()->set_id(op->nodeID + 1);
-            }
 
             if (curr_op->name() == "repsiggen")
             {
-                id_to_op[op->nodeID + 1]->mutable_repeat()->mutable_input_rep_sig()->set_name(label);
+                id_to_op[op->nodeID]->mutable_repeat()->mutable_input_rep_sig()->set_name(label);
                 if (curr_op)
                 {
-                    id_to_op[op->nodeID + 1]->mutable_repeat()->mutable_input_rep_sig()->mutable_id()->set_id(curr_op->id());
+                    id_to_op[op->nodeID]->mutable_repeat()->mutable_input_rep_sig()->mutable_id()->set_id(chan_track.get_create_channel("out_repsig", curr_op->id() - 1));
                 }
             }
             else
             {
-                id_to_op[op->nodeID + 1]->mutable_repeat()->mutable_input_ref()->set_name(label);
+                id_to_op[op->nodeID]->mutable_repeat()->mutable_input_ref()->set_name(label);
                 if (curr_op)
                 {
-                    id_to_op[op->nodeID + 1]->mutable_repeat()->mutable_input_ref()->mutable_id()->set_id(curr_op->id());
+                    id_to_op[op->nodeID]->mutable_repeat()->mutable_input_ref()->mutable_id()->set_id(chan_track.get_create_channel("out_ref", curr_op->id() - 1));
                 }
             }
 
@@ -958,10 +911,12 @@ namespace taco
                 {
                     edgeType = "ref";
                     // os << tab << op->nodeID << " -> ";
-                    curr_op = id_to_op[op->nodeID + 1];
-                    out_stream.rstream = curr_op->mutable_repeat()->mutable_output_ref();
-                    out_stream.rstream->set_name(edgeType);
+                    curr_op = id_to_op[op->nodeID];
+                    // out_stream.rstream = curr_op->mutable_repeat()->mutable_output_ref();
+                    // out_stream.rstream->set_name(edgeType);
                     out_stream.type = edgeType;
+                    // chan_track.get_create_channel("out_ref", op->nodeID);
+                    curr_op->mutable_repeat()->mutable_output_ref()->mutable_id()->set_id(chan_track.get_create_channel("out_ref", op->nodeID));
                     op->out_ref.accept(this);
                 }
                 edgeType = "";
@@ -974,27 +929,11 @@ namespace taco
             string ss = printerHelper();
             // os << op->nodeID << ss << endl;
 
-            if (out_stream.type == "crd")
-            {
-                out_stream.cstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-            else if (out_stream.type == "ref")
-            {
-                out_stream.rstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-            else if (out_stream.type == "repsig")
-            {
-                out_stream.rsigstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-            else if (out_stream.type == "val")
-            {
-                out_stream.vstream->mutable_id()->set_id(op->nodeID + 1);
-            }
 
-            id_to_op[op->nodeID + 1]->mutable_repeatsig()->mutable_input_crd()->set_name(label);
+            id_to_op[op->nodeID]->mutable_repeatsig()->mutable_input_crd()->set_name(label);
             if (curr_op)
             {
-                id_to_op[op->nodeID + 1]->mutable_repeatsig()->mutable_input_crd()->mutable_id()->set_id(curr_op->id());
+                id_to_op[op->nodeID]->mutable_repeatsig()->mutable_input_crd()->mutable_id()->set_id(chan_track.get_create_channel("out_ref", curr_op->id() - 1));
             }
 
             if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0)
@@ -1003,10 +942,12 @@ namespace taco
                 {
                     edgeType = "repsig";
                     // os << tab << op->nodeID << " -> ";
-                    curr_op = id_to_op[op->nodeID + 1];
-                    out_stream.rsigstream = curr_op->mutable_repeatsig()->mutable_output_rep_sig();
-                    out_stream.rsigstream->set_name(edgeType);
+                    curr_op = id_to_op[op->nodeID];
+                    // out_stream.rsigstream = curr_op->mutable_repeatsig()->mutable_output_rep_sig();
+                    // out_stream.rsigstream->set_name(edgeType);
                     out_stream.type = edgeType;
+                    // chan_track.get_create_channel("out_repsig", op->nodeID);
+                    curr_op->mutable_repeatsig()->mutable_output_rep_sig()->mutable_id()->set_id(chan_track.get_create_channel("out_repsig", op->nodeID));
                     op->out_repsig.accept(this);
                 }
                 edgeType = "";
@@ -1019,56 +960,40 @@ namespace taco
             string ss = printerHelper();
             // os << op->nodeID << ss << endl;
 
-            if (out_stream.type == "crd")
-            {
-                out_stream.cstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-            else if (out_stream.type == "ref")
-            {
-                out_stream.rstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-            else if (out_stream.type == "repsig")
-            {
-                out_stream.rsigstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-            else if (out_stream.type == "val")
-            {
-                out_stream.vstream->mutable_id()->set_id(op->nodeID + 1);
-            }
 
             if (edgeType == "ref")
             {
-                int num_pairs = id_to_op[op->nodeID + 1]->mutable_joiner()->input_pairs_size();
+                int num_pairs = id_to_op[op->nodeID]->mutable_joiner()->input_pairs_size();
                 Joiner::JoinBundle *bundle;
-                if (num_pairs == 0 || (full_joiner == 2 && id_to_op[op->nodeID + 1]->mutable_joiner()->mutable_input_pairs(num_pairs - 1)->has_ref()))
+                if (num_pairs == 0 || (full_joiner == 2 && id_to_op[op->nodeID]->mutable_joiner()->mutable_input_pairs(num_pairs - 1)->has_ref()))
                 {
-                    bundle = id_to_op[op->nodeID + 1]->mutable_joiner()->add_input_pairs();
+                    bundle = id_to_op[op->nodeID]->mutable_joiner()->add_input_pairs();
                     full_joiner = 0;
                     num_pairs++;
                 } 
 
-                bundle = id_to_op[op->nodeID + 1]->mutable_joiner()->mutable_input_pairs(num_pairs - 1);
+                bundle = id_to_op[op->nodeID]->mutable_joiner()->mutable_input_pairs(num_pairs - 1);
                 if (curr_op)
                 {
-                    bundle->mutable_ref()->mutable_id()->set_id(curr_op->id());
+                    bundle->mutable_ref()->mutable_id()->set_id(chan_track.get_create_channel("out_ref", curr_op->id() - 1));
                     bundle->mutable_ref()->set_name(label);
                     full_joiner += 1;
                 }
             }
             else
             {
-                int num_pairs = id_to_op[op->nodeID + 1]->mutable_joiner()->input_pairs_size();
+                int num_pairs = id_to_op[op->nodeID]->mutable_joiner()->input_pairs_size();
                 Joiner::JoinBundle *bundle;
-                if (num_pairs == 0 || id_to_op[op->nodeID + 1]->mutable_joiner()->mutable_input_pairs(num_pairs - 1)->has_crd())
+                if (num_pairs == 0 || id_to_op[op->nodeID]->mutable_joiner()->mutable_input_pairs(num_pairs - 1)->has_crd())
                 {
-                    bundle = id_to_op[op->nodeID + 1]->mutable_joiner()->add_input_pairs();
+                    bundle = id_to_op[op->nodeID]->mutable_joiner()->add_input_pairs();
                     full_joiner = 0;
                     num_pairs++;
                 }
-                bundle = id_to_op[op->nodeID + 1]->mutable_joiner()->mutable_input_pairs(num_pairs - 1);
+                bundle = id_to_op[op->nodeID]->mutable_joiner()->mutable_input_pairs(num_pairs - 1);
                 if (curr_op)
                 {
-                    bundle->mutable_crd()->mutable_id()->set_id(curr_op->id());
+                    bundle->mutable_crd()->mutable_id()->set_id(chan_track.get_create_channel("out_crd", curr_op->id() - 1));
                     bundle->mutable_crd()->set_name(label);
                     full_joiner += 1;
                 }
@@ -1088,9 +1013,11 @@ namespace taco
                     comment = op->edgeName;
                     edgeType = "crd";
                     // os << tab << op->nodeID << " -> ";
-                    curr_op = id_to_op[op->nodeID + 1];
+                    curr_op = id_to_op[op->nodeID];
                     out_stream.cstream = curr_op->mutable_joiner()->mutable_output_crd();
                     out_stream.cstream->set_name(comment);
+                    // chan_track.get_create_channel("out_crd", op->nodeID);
+                    curr_op->mutable_joiner()->mutable_output_crd()->mutable_id()->set_id(chan_track.get_create_channel("out_crd", op->nodeID));
                     out_stream.type = edgeType;
                     op->out_crd.accept(this);
                 }
@@ -1104,16 +1031,18 @@ namespace taco
                         comment = "out-" + out_ref.getTensorName();
                         edgeType = "ref";
                         // os << tab << op->nodeID << " -> ";
-                        curr_op = id_to_op[op->nodeID + 1];
+                        curr_op = id_to_op[op->nodeID];
                         if (i == 0)
                         {
                             out_stream.rstream = curr_op->mutable_joiner()->mutable_output_ref1();
                             out_stream.rstream->set_name(comment);
+                            curr_op->mutable_joiner()->mutable_output_ref1()->mutable_id()->set_id(chan_track.get_create_channel("out_ref", op->nodeID));
                         }
                         else
                         {
                             out_stream.rstream = curr_op->mutable_joiner()->mutable_output_ref2();
                             out_stream.rstream->set_name(comment);
+                            curr_op->mutable_joiner()->mutable_output_ref2()->mutable_id()->set_id(chan_track.get_create_channel("out_ref", op->nodeID));
                         }
                         out_stream.type = edgeType;
                         out_ref.accept(this);
@@ -1130,26 +1059,11 @@ namespace taco
             {
                 string ss = printerHelper();
                 // os << op->nodeID << ss << endl;
-                if (out_stream.type == "crd")
-                {
-                    out_stream.cstream->mutable_id()->set_id(op->nodeID + 1);
-                }
-                else if (out_stream.type == "ref")
-                {
-                    out_stream.rstream->mutable_id()->set_id(op->nodeID + 1);
-                }
-                else if (out_stream.type == "repsig")
-                {
-                    out_stream.rsigstream->mutable_id()->set_id(op->nodeID + 1);
-                }
-                else if (out_stream.type == "val")
-                {
-                    out_stream.vstream->mutable_id()->set_id(op->nodeID + 1);
-                }
-                id_to_op[op->nodeID + 1]->mutable_array()->mutable_input_ref()->set_name(label);
+
+                id_to_op[op->nodeID]->mutable_array()->mutable_input_ref()->set_name(label);
                 if (curr_op)
                 {
-                    id_to_op[op->nodeID + 1]->mutable_array()->mutable_input_ref()->mutable_id()->set_id(curr_op->id());
+                    id_to_op[op->nodeID]->mutable_array()->mutable_input_ref()->mutable_id()->set_id(chan_track.get_create_channel("out_ref", curr_op->id() - 1));
                 }
             }
 
@@ -1159,10 +1073,11 @@ namespace taco
                 {
                     edgeType = "";
                     // os << tab << op->nodeID << " -> ";
-                    curr_op = id_to_op[op->nodeID + 1];
+                    curr_op = id_to_op[op->nodeID];
                     curr_op->mutable_array()->mutable_output_val()->set_name("val");
                     out_stream.vstream = curr_op->mutable_array()->mutable_output_val();
                     out_stream.type = "val";
+                    curr_op->mutable_array()->mutable_output_val()->mutable_id()->set_id(chan_track.get_create_channel("out_val", op->nodeID));
                     op->out_val.accept(this);
                 }
 
@@ -1176,43 +1091,23 @@ namespace taco
             string ss = printerHelper();
             // os << op->nodeID << ss << endl;
 
-            if (out_stream.type == "crd")
-            {
-                out_stream.cstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-            else if (out_stream.type == "ref")
-            {
-                out_stream.rstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-            else if (out_stream.type == "repsig")
-            {
-                out_stream.rsigstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-            else if (out_stream.type == "val")
-            {
-                if (op->getNodeName() == "reduce") {
-                    // cout << "ID for red : " << op->nodeID << endl;
-                    // exit(0);
-                }
-                out_stream.vstream->mutable_id()->set_id(op->nodeID + 1);
-            }
 
             if (op->getNodeName() != "reduce")
             {
-                ValStream *alu_val = id_to_op[op->nodeID + 1]->mutable_alu()->mutable_vals()->add_inputs();
+                ValStream *alu_val = id_to_op[op->nodeID]->mutable_alu()->mutable_vals()->add_inputs();
                 alu_val->set_name(label);
                 if (curr_op)
                 {
-                    int num_inputs = id_to_op[op->nodeID + 1]->mutable_alu()->mutable_vals()->inputs_size();
-                    id_to_op[op->nodeID + 1]->mutable_alu()->mutable_vals()->mutable_inputs(num_inputs - 1)->mutable_id()->set_id(curr_op->id());
+                    int num_inputs = id_to_op[op->nodeID]->mutable_alu()->mutable_vals()->inputs_size();
+                    id_to_op[op->nodeID]->mutable_alu()->mutable_vals()->mutable_inputs(num_inputs - 1)->mutable_id()->set_id(chan_track.get_create_channel("out_val", curr_op->id() - 1));
                 }
             }
             else
             {
-                id_to_op[op->nodeID + 1]->mutable_reduce()->mutable_input_val()->set_name(label);
+                id_to_op[op->nodeID]->mutable_reduce()->mutable_input_val()->set_name(label);
                 if (curr_op)
                 {
-                    id_to_op[op->nodeID + 1]->mutable_reduce()->mutable_input_val()->mutable_id()->set_id(curr_op->id());
+                    id_to_op[op->nodeID]->mutable_reduce()->mutable_input_val()->mutable_id()->set_id(chan_track.get_create_channel("out_val", curr_op->id() - 1));
                 }
             }
 
@@ -1222,15 +1117,18 @@ namespace taco
                 {
                     edgeType = "";
                     // os << tab << op->nodeID << " -> ";
-                    curr_op = id_to_op[op->nodeID + 1];
+                    curr_op = id_to_op[op->nodeID];
                     if (op->getNodeName() != "reduce") {
                         out_stream.vstream = curr_op->mutable_alu()->mutable_vals()->mutable_output();
+                        curr_op->mutable_alu()->mutable_vals()->mutable_output()->mutable_id()->set_id(chan_track.get_create_channel("out_val", op->nodeID));
                         out_stream.vstream->set_name("val");
                     } else {
                         out_stream.vstream = curr_op->mutable_reduce()->mutable_output_val();
                         out_stream.vstream->set_name("reduce_val");
+                        curr_op->mutable_reduce()->mutable_output_val()->mutable_id()->set_id(chan_track.get_create_channel("out_val", op->nodeID));
                     }
                     out_stream.type = "val";
+                    // chan_track.get_create_channel("out_val", op->nodeID);
                     op->out_val.accept(this);
                 }
 
@@ -1244,51 +1142,35 @@ namespace taco
             string ss = printerHelper();
             // os << op->nodeID << ss << endl;
 
-            if (out_stream.type == "crd")
-            {
-                out_stream.cstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-            else if (out_stream.type == "ref")
-            {
-                out_stream.rstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-            else if (out_stream.type == "repsig")
-            {
-                out_stream.rsigstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-            else if (out_stream.type == "val")
-            {
-                out_stream.vstream->mutable_id()->set_id(op->nodeID + 1);
-            }
 
             if (edgeType == "crd")
             {
                 // std::cout << string(&label.back()) << endl;
                 // exit(0);
-                if (string(&label.back()) == id_to_op[op->nodeID + 1]->mutable_spacc()->inner_crd())
+                if (string(&label.back()) == id_to_op[op->nodeID]->mutable_spacc()->inner_crd())
                 {
-                    id_to_op[op->nodeID + 1]->mutable_spacc()->mutable_input_inner_crd()->set_name(label);
+                    id_to_op[op->nodeID]->mutable_spacc()->mutable_input_inner_crd()->set_name(label);
                     if (curr_op)
                     {
-                        id_to_op[op->nodeID + 1]->mutable_spacc()->mutable_input_inner_crd()->mutable_id()->set_id(curr_op->id());
+                        id_to_op[op->nodeID]->mutable_spacc()->mutable_input_inner_crd()->mutable_id()->set_id(chan_track.get_create_channel("out_crd", curr_op->id() - 1));
                     }
                 }
                 else
                 {
-                    id_to_op[op->nodeID + 1]->mutable_spacc()->mutable_input_outer_crd()->set_name(label);
+                    id_to_op[op->nodeID]->mutable_spacc()->mutable_input_outer_crd()->set_name(label);
                     if (curr_op)
                     {
-                        id_to_op[op->nodeID + 1]->mutable_spacc()->mutable_input_outer_crd()->mutable_id()->set_id(curr_op->id());
+                        id_to_op[op->nodeID]->mutable_spacc()->mutable_input_outer_crd()->mutable_id()->set_id(chan_track.get_create_channel("out_crd", curr_op->id() - 1));
                     }
                 }
             }
             else
             {
                 // std::cout << label << endl;
-                id_to_op[op->nodeID + 1]->mutable_spacc()->mutable_input_val()->set_name(label);
+                id_to_op[op->nodeID]->mutable_spacc()->mutable_input_val()->set_name(label);
                 if (curr_op)
                 {
-                    id_to_op[op->nodeID + 1]->mutable_spacc()->mutable_input_val()->mutable_id()->set_id(curr_op->id());
+                    id_to_op[op->nodeID]->mutable_spacc()->mutable_input_val()->mutable_id()->set_id(chan_track.get_create_channel("out_val", curr_op->id() - 1));
                 }
             }
 
@@ -1298,10 +1180,11 @@ namespace taco
                 {
                     edgeType = "";
                     // os << tab << op->nodeID << " -> ";
-                    curr_op = id_to_op[op->nodeID + 1];
+                    curr_op = id_to_op[op->nodeID];
                     curr_op->mutable_spacc()->mutable_output_val()->set_name(comment);
                     out_stream.vstream = curr_op->mutable_spacc()->mutable_output_val();
                     out_stream.type = "val";
+                    curr_op->mutable_spacc()->mutable_output_val()->mutable_id()->set_id(chan_track.get_create_channel("out_val", op->nodeID));
                     op->out_val.accept(this);
                 }
 
@@ -1312,9 +1195,11 @@ namespace taco
                     std::cout << comment << endl;
                     edgeType = "crd";
                     // os << tab << op->nodeID << " -> ";
-                    curr_op = id_to_op[op->nodeID + 1];
+                    curr_op = id_to_op[op->nodeID];
                     curr_op->mutable_spacc()->mutable_output_inner_crd()->set_name(comment);
                     out_stream.cstream = curr_op->mutable_spacc()->mutable_output_inner_crd();
+                    // chan_track.get_create_channel("out_crd", op->nodeID);
+                    curr_op->mutable_spacc()->mutable_output_inner_crd()->mutable_id()->set_id(chan_track.get_create_channel("out_crd", op->nodeID));
                     out_stream.type = "crd";
                     out_crd.second.accept(this);
                 }
@@ -1328,39 +1213,22 @@ namespace taco
         {
             string ss = printerHelper();
             // os << op->nodeID << ss << endl;
-            if (out_stream.type == "crd")
-            {
-                out_stream.cstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-            else if (out_stream.type == "ref")
-            {
-                out_stream.rstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-            else if (out_stream.type == "repsig")
-            {
-                out_stream.rsigstream->mutable_id()->set_id(op->nodeID + 1);
-            }
-            else if (out_stream.type == "val")
-            {
-                out_stream.vstream->mutable_id()->set_id(op->nodeID + 1);
-            }
+ 
 
-            // std::cout << string(&label.back()) << endl;
-            // exit(0);
-            if (string(&label.back()) == id_to_op[op->nodeID + 1]->mutable_coord_drop()->inner_crd())
+            if (string(&label.back()) == id_to_op[op->nodeID]->mutable_coord_drop()->inner_crd())
             {
-                id_to_op[op->nodeID + 1]->mutable_coord_drop()->mutable_input_inner_crd()->set_name(label);
+                id_to_op[op->nodeID]->mutable_coord_drop()->mutable_input_inner_crd()->set_name(label);
                 if (curr_op)
                 {
-                    id_to_op[op->nodeID + 1]->mutable_coord_drop()->mutable_input_inner_crd()->mutable_id()->set_id(curr_op->id());
+                    id_to_op[op->nodeID]->mutable_coord_drop()->mutable_input_inner_crd()->mutable_id()->set_id(chan_track.get_create_channel("out_crd", curr_op->id() - 1));
                 }
             }
             else
             {
-                id_to_op[op->nodeID + 1]->mutable_coord_drop()->mutable_input_outer_crd()->set_name(label);
+                id_to_op[op->nodeID]->mutable_coord_drop()->mutable_input_outer_crd()->set_name(label);
                 if (curr_op)
                 {
-                    id_to_op[op->nodeID + 1]->mutable_coord_drop()->mutable_input_outer_crd()->mutable_id()->set_id(curr_op->id());
+                    id_to_op[op->nodeID]->mutable_coord_drop()->mutable_input_outer_crd()->mutable_id()->set_id(chan_track.get_create_channel("out_crd", curr_op->id() - 1));
                 }
             }
 
@@ -1372,10 +1240,11 @@ namespace taco
                     printComment = true;
                     comment = "outer-" + op->outer.getName();
                     // os << tab << op->nodeID << " -> ";
-                    curr_op = id_to_op[op->nodeID + 1];
+                    curr_op = id_to_op[op->nodeID];
                     curr_op->mutable_coord_drop()->mutable_output_outer_crd()->set_name(comment);
                     out_stream.cstream = curr_op->mutable_coord_drop()->mutable_output_outer_crd();
                     out_stream.type = "crd";
+                    curr_op->mutable_coord_drop()->mutable_output_outer_crd()->mutable_id()->set_id(chan_track.get_create_channel("out_crd", op->nodeID));
                     op->out_outer_crd.accept(this);
                 }
 
@@ -1385,10 +1254,12 @@ namespace taco
                     printComment = true;
                     comment = "inner-" + op->inner.getName();
                     // os << tab << op->nodeID << " -> ";
-                    curr_op = id_to_op[op->nodeID + 1];
+                    curr_op = id_to_op[op->nodeID];
                     curr_op->mutable_coord_drop()->mutable_output_inner_crd()->set_name(comment);
                     out_stream.cstream = curr_op->mutable_coord_drop()->mutable_output_inner_crd();
                     out_stream.type = "crd";
+                    curr_op->mutable_coord_drop()->mutable_output_inner_crd()->mutable_id()->set_id(chan_track.create_channel("out_crd", op->nodeID));
+                    // chan_track.get_create_channel("out_crd", op->nodeID);
                     op->out_inner_crd.accept(this);
                 }
 
@@ -1402,30 +1273,21 @@ namespace taco
             string ss = printerHelper();
             // os << op->nodeID << ss << endl;
 
-            if (out_stream.type == "crd") {
-            out_stream.cstream->mutable_id()->set_id(op->nodeID + 1);
-        } else if (out_stream.type == "ref") {
-            out_stream.rstream->mutable_id()->set_id(op->nodeID + 1);
-        } else if (out_stream.type == "repsig") {
-            out_stream.rsigstream->mutable_id()->set_id(op->nodeID + 1);
-        } else if (out_stream.type == "val") {
-            out_stream.vstream->mutable_id()->set_id(op->nodeID + 1);
-        }
 
-            if (string(&label.back()) == id_to_op[op->nodeID + 1]->mutable_coord_hold()->inner_crd())
+            if (string(&label.back()) == id_to_op[op->nodeID]->mutable_coord_hold()->inner_crd())
             {
-                id_to_op[op->nodeID + 1]->mutable_coord_hold()->mutable_input_inner_crd()->set_name(label);
+                id_to_op[op->nodeID]->mutable_coord_hold()->mutable_input_inner_crd()->set_name(label);
                 if (curr_op)
                 {
-                    id_to_op[op->nodeID + 1]->mutable_coord_hold()->mutable_input_inner_crd()->mutable_id()->set_id(curr_op->id());
+                    id_to_op[op->nodeID]->mutable_coord_hold()->mutable_input_inner_crd()->mutable_id()->set_id(chan_track.get_create_channel("out_crd", curr_op->id() - 1));
                 }
             }
             else
             {
-                id_to_op[op->nodeID + 1]->mutable_coord_hold()->mutable_input_outer_crd()->set_name(label);
+                id_to_op[op->nodeID]->mutable_coord_hold()->mutable_input_outer_crd()->set_name(label);
                 if (curr_op)
                 {
-                    id_to_op[op->nodeID + 1]->mutable_coord_hold()->mutable_input_outer_crd()->mutable_id()->set_id(curr_op->id());
+                    id_to_op[op->nodeID]->mutable_coord_hold()->mutable_input_outer_crd()->mutable_id()->set_id(chan_track.get_create_channel("out_crd", curr_op->id() - 1));
                 }
             }
 
@@ -1437,10 +1299,12 @@ namespace taco
                     printComment = true;
                     comment = "outer-" + op->outer.getName();
                     // os << tab << op->nodeID << " -> ";
-                    curr_op = id_to_op[op->nodeID + 1];
+                    curr_op = id_to_op[op->nodeID];
                     curr_op->mutable_coord_hold()->mutable_output_outer_crd()->set_name(comment);
                     out_stream.cstream = curr_op->mutable_coord_hold()->mutable_output_outer_crd();
                     out_stream.type = "crd";
+                    // chan_track.get_create_channel("out_crd", op->nodeID);
+                    curr_op->mutable_coord_hold()->mutable_output_outer_crd()->mutable_id()->set_id(chan_track.get_create_channel("out_crd", op->nodeID));
                     op->out_outer_crd.accept(this);
                 }
 
@@ -1450,9 +1314,11 @@ namespace taco
                     printComment = true;
                     comment = "inner-" + op->inner.getName();
                     // os << tab << op->nodeID << " -> ";
-                    curr_op = id_to_op[op->nodeID + 1];
+                    curr_op = id_to_op[op->nodeID];
                     curr_op->mutable_coord_hold()->mutable_output_inner_crd()->set_name(comment);
                     out_stream.cstream = curr_op->mutable_coord_hold()->mutable_output_inner_crd();
+                    // chan_track.get_create_channel("out_crd", op->nodeID);
+                    curr_op->mutable_coord_hold()->mutable_output_inner_crd()->mutable_id()->set_id(chan_track.create_channel("out_crd", op->nodeID));
                     out_stream.type = "crd";
                     op->out_inner_crd.accept(this);
                 }
