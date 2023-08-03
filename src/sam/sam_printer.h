@@ -135,7 +135,7 @@ namespace taco{
 
         private:
             std::map<std::pair<std::string, int>, int> chan_map;
-            int counter = 100;
+            int counter = 1;
     };
 
     class SAMDotEdgePrinter : public SAMVisitor {
