@@ -1042,7 +1042,7 @@ namespace taco
                         {
                             out_stream.rstream = curr_op->mutable_joiner()->mutable_output_ref2();
                             out_stream.rstream->set_name(comment);
-                            curr_op->mutable_joiner()->mutable_output_ref2()->mutable_id()->set_id(chan_track.get_create_channel("out_ref", op->nodeID));
+                            curr_op->mutable_joiner()->mutable_output_ref2()->mutable_id()->set_id(chan_track.create_channel("out_ref", op->nodeID));
                         }
                         out_stream.type = edgeType;
                         out_ref.accept(this);
