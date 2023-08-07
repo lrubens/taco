@@ -122,7 +122,6 @@ namespace taco
             {
 
                 // Operation *new_op = pg.add_operators();
-                // Operation *new_op = pg.add_operators();
                 // new_op->set_id(op->nodeID + 1);
                 // new_op->set_name("broadcast");
                 // new_op->mutable_broadcast()->set_label("broadcast");
@@ -932,7 +931,7 @@ namespace taco
             id_to_op[op->nodeID]->mutable_repeatsig()->mutable_input_crd()->set_name(label);
             if (curr_op)
             {
-                id_to_op[op->nodeID]->mutable_repeatsig()->mutable_input_crd()->mutable_id()->set_id(chan_track.get_create_channel("out_ref", curr_op->id() - 1));
+                id_to_op[op->nodeID]->mutable_repeatsig()->mutable_input_crd()->mutable_id()->set_id(chan_track.get_create_channel("out_crd", curr_op->id() - 1));
             }
 
             if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0)
