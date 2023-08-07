@@ -1030,11 +1030,14 @@ namespace taco
                         edgeType = "ref";
                         // os << tab << op->nodeID << " -> ";
                         curr_op = id_to_op[op->nodeID];
-                        if (i == 0)
+                        // cout << string(&(curr_op->mutable_joiner()->mutable_input_pairs(0)->mutable_crd()->name().back())) << endl;
+                        // cout << string(&comment.back()) << endl;
+                        // cout << endl;
+                        if (string(&comment.back()) == string(&(curr_op->mutable_joiner()->mutable_input_pairs(0)->mutable_crd()->name().back())))
                         {
                             out_stream.rstream = curr_op->mutable_joiner()->mutable_output_ref1();
                             out_stream.rstream->set_name(comment);
-                            curr_op->mutable_joiner()->mutable_output_ref1()->mutable_id()->set_id(chan_track.get_create_channel("out_ref", op->nodeID));
+                            curr_op->mutable_joiner()->mutable_output_ref1()->mutable_id()->set_id(chan_track.create_channel("out_ref", op->nodeID));
                         }
                         else
                         {
