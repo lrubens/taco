@@ -121,12 +121,13 @@ namespace taco
             if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0)
             {
 
-                Operation *new_op = pg.add_operators();
-                new_op->set_id(op->nodeID + 1);
-                new_op->set_name("broadcast");
-                new_op->mutable_broadcast()->set_label("broadcast");
+                // Operation *new_op = pg.add_operators();
+                // Operation *new_op = pg.add_operators();
+                // new_op->set_id(op->nodeID + 1);
+                // new_op->set_name("broadcast");
+                // new_op->mutable_broadcast()->set_label("broadcast");
                 // id_to_op[op->nodeID] = new_op;
-                id_to_op[op->nodeID] = new_op;
+                // id_to_op[op->nodeID] = new_op;
 
                 // os << tab;
                 // os << to_string(op->nodeID) << " [comment=\"type=broadcast\"";
@@ -762,13 +763,11 @@ namespace taco
                 //     out_stream.vstream->mutable_id()->set_id(chan_track.get_create_channel("out_val", op->nodeID));
                 // }
 
-                if (op->type == SamEdgeType::crd)
+                // if (op->type == SamEdgeType::crd)
+                    // id_to_op[op->nodeID]->mutable_broadcast()->mutable_input()->set_name(label);
+                if (curr_op)
                 {
-                    id_to_op[op->nodeID]->mutable_broadcast()->mutable_input()->set_name(label);
-                    if (curr_op)
-                    {
-                        id_to_op[op->nodeID] = id_to_op[curr_op->id() - 1];
-                    }
+                    id_to_op[op->nodeID] = id_to_op[curr_op->id() - 1];
                 }
 
                 for (SamIR node : op->outputs)
