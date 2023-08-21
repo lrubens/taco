@@ -743,27 +743,6 @@ namespace taco
             if (std::count(printedNodes.begin(), printedNodes.end(), op->nodeID) == 0)
             {
                 string ss = printerHelper();
-                // os << op->nodeID << ss << endl;
-
-                // if (out_stream.type == "crd")
-                // {
-                //     out_stream.cstream->mutable_id()->set_id(chan_track.get_create_channel("out_crd", op->nodeID));
-                // }
-                // else if (out_stream.type == "ref")
-                // {
-                //     out_stream.rstream->mutable_id()->set_id(chan_track.get_create_channel("out_ref", op->nodeID));
-                // }
-                // else if (out_stream.type == "repsig")
-                // {
-                //     out_stream.rsigstream->mutable_id()->set_id(chan_track.get_create_channel("out_repsig", op->nodeID));
-                // }
-                // else if (out_stream.type == "val")
-                // {
-                //     out_stream.vstream->mutable_id()->set_id(chan_track.get_create_channel("out_val", op->nodeID));
-                // }
-
-                // if (op->type == SamEdgeType::crd)
-                    // id_to_op[op->nodeID]->mutable_broadcast()->mutable_input()->set_name(label);
                 if (curr_op)
                 {
                     id_to_op[op->nodeID] = id_to_op[curr_op->id() - 1];
@@ -795,10 +774,12 @@ namespace taco
                             break;
                         }
                         curr_op = id_to_op[op->nodeID];
+                        edgeIndex = contains(op->edgeName, node) ? op->edgeName.at(node) : "";
                         node.accept(this);
                     }
                 }
                 edgeType = "";
+                edgeIndex = "";
             }
             printedNodes.push_back(op->nodeID);
         }
@@ -1146,8 +1127,6 @@ namespace taco
 
             if (edgeType == "crd")
             {
-                // std::cout << string(&label.back()) << endl;
-                // exit(0);
                 if (string(&label.back()) == id_to_op[op->nodeID]->mutable_spacc()->inner_crd())
                 {
                     id_to_op[op->nodeID]->mutable_spacc()->mutable_input_inner_crd()->set_name(label);
@@ -1193,7 +1172,8 @@ namespace taco
                 {
                     printComment = true;
                     comment = "out-" + op->ivarMap.at(out_crd.first).getName();
-                    std::cout << comment << endl;
+                    // std::cout << comment << endl;
+                    edgeIndex = op->ivarMap.at(out_crd.first).getName();
                     edgeType = "crd";
                     // os << tab << op->nodeID << " -> ";
                     curr_op = id_to_op[op->nodeID];
@@ -1206,6 +1186,7 @@ namespace taco
                 }
 
                 edgeType = "";
+                edgeIndex = "";
             }
             printedNodes.push_back(op->nodeID);
         }
@@ -1238,6 +1219,7 @@ namespace taco
                 if (op->out_outer_crd.defined())
                 {
                     edgeType = "crd";
+                    edgeIndex = op->outer.getName();
                     printComment = true;
                     comment = "outer-" + op->outer.getName();
                     // os << tab << op->nodeID << " -> ";
@@ -1252,6 +1234,7 @@ namespace taco
                 if (op->out_inner_crd.defined())
                 {
                     edgeType = "crd";
+                    edgeIndex = op->inner.getName();
                     printComment = true;
                     comment = "inner-" + op->inner.getName();
                     // os << tab << op->nodeID << " -> ";
@@ -1265,6 +1248,7 @@ namespace taco
                 }
 
                 edgeType = "";
+                edgeIndex = "";
             }
             printedNodes.push_back(op->nodeID);
         }
