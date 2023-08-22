@@ -426,21 +426,23 @@ SamIR SAMGraph::makeGraph() {
   // Last iteration for outermost level with no reduction nodes
   auto outerTensors = getTensorVars(tempExpr);
   auto indexVars = getAccessVars(tempExpr);
-  for (auto tensor : outerTensors) {
-    inputIterationIndexVarMap[tensor] = indexVars;
+
+  // TODO: Figure out if this is correct for all expressions
+  // Pushing free index variables to broadcast, think this might have been a bug
+  for (auto var : content->freeVars) {
+    if (!std::count(indexVars.begin(), indexVars.end(), var)) {
+      indexVars.push_back(var);
+    }
   }
 
-  // Used to print map above
-  //        std::cout << "InputIterationIndexVarMap" << std::endl;
-  //        for (auto item : inputIterationIndexVarMap) {
-  //            std::cout << item.first << ": ";
-  //            for (auto ivar : item.second) {
-  //                std::cout << ivar << ",";
-  //            }
-  //            std::cout << std::endl;
-  //        }
+  for (auto tensor : outerTensors) {
+    for (auto index : indexVars) {
+      inputIterationIndexVarMap[tensor] = indexVars;
+    }
+  }
 
-  // If dimension doesn't exist due to result broadcasting, use result dimension
+  // If dimension doesn't exist due to result broadcasting, use result
+  // dimension
   for (const auto &indexvar : getOrderedIndexVars()) {
     if (!contains(dimensionMap, indexvar)) {
       size_t mode = getMode(indexvar, getResultTensorPath());
@@ -735,58 +737,67 @@ SamIR SAMGraph::makeGraph() {
     //                switch (red) {
     //                    case SamNodeType::Reduce:
     //                        reduceNode = prevComputeNode;
-    //                        // reduceNode = taco::sam::Reduce(prevComputeNode,
-    //                        id); taco_iassert(reductionOrder.back() == 0) <<
+    //                        // reduceNode =
+    //                        taco::sam::Reduce(prevComputeNode, id);
+    //                        taco_iassert(reductionOrder.back() == 0) <<
     //                        "Reduce node must have a reduction order of 0";
     //                        taco_iassert(!reductionOrder.empty()) << "Number
     //                        of reduction (Reduction) nodes does not "
     //                                                                 "match
     //                                                                 the
-    //                                                                 number of
+    //                                                                 number
+    //                                                                 of
     //                                                                 reduction
     //                                                                 orders.";
     ////                        reductionOrder.pop_back();
     //                        break;
     //                    case SamNodeType::SparseAccumulator:
     //                        taco_iassert(!reductionOrder.empty()) << "Number
-    //                        of reduction (Sparse Accumulation) nodes does not
+    //                        of reduction (Sparse Accumulation) nodes does
+    //                        not
     //                        "
     //                                                                 "match
     //                                                                 the
-    //                                                                 number of
+    //                                                                 number
+    //                                                                 of
     //                                                                 reduction
     //                                                                 orders.";
     //
-    ////                    for (int i = numIndexVars - 1; i >= (numIndexVars -
+    ////                    for (int i = numIndexVars - 1; i >= (numIndexVars
+    ///-
     /// 1 - reductionOrder.back()); i--) { /                            auto
-    /// indexvar = getOrderedIndexVars().at(i); /                            //
-    /// Only need to add in output coordinates to the sparse accumulator if
-    /// there /                            // is a level writer / if
+    /// indexvar = getOrderedIndexVars().at(i); / // Only need to add in
+    /// output coordinates to the sparse accumulator if there / // is a level
+    /// writer / if
     ///(contains(resultWriteIRNodes, indexvar)) { / spAccCrds[spaccInputCnt] =
     /// resultWriteIRNodes[indexvar]; /                                // Only
     /// needed for CrdHold generation /                                //
     /// outermostSpAccVar = i - 1; /                                //
-    /// innermostSpAccVar = innermostSpAccVar < 0 ? i-1 : innermostSpAccVar; / }
-    ////                            // Need to have a map for all inputs, which
+    /// innermostSpAccVar = innermostSpAccVar < 0 ? i-1 : innermostSpAccVar; /
+    /// }
+    ////                            // Need to have a map for all inputs,
+    /// which
     /// is all coordinates for the reduction /                            //
-    ///(order + 1) /                            spAccIndexvarMap[spaccInputCnt]
-    ///= indexvar; /                            spaccInputCnt++; / }
+    ///(order + 1) / spAccIndexvarMap[spaccInputCnt] = indexvar; /
+    /// spaccInputCnt++; / }
     ////
     ////                        reduceNode =
     /// taco::sam::SparseAccumulator(prevComputeNode,spAccCrds,
     /// reductionOrder.back(), / spAccIndexvarMap, id);
     ////
-    ////                        // Only pass coordinates to sparse accumulators
+    ////                        // Only pass coordinates to sparse
+    /// accumulators
     /// for sparse accumulator d + 1, where d is the dimension of the sparse
     /// accumulator. /                        // For example, a sparse
     /// accumulator for a vector should take both the value and / for (int i =
-    /// numIndexVars - 1; i >= (numIndexVars - 1 - reductionOrder.back()); i--)
-    /// { /                            // FIXME: check if this is always correct
-    /// for more complicated kernels /                            auto indexvar
-    /// = getOrderedIndexVars().at(i); /                            cout <<
-    /// indexvar << ", " << endl; /                            // if
+    /// numIndexVars - 1; i >= (numIndexVars - 1 - reductionOrder.back());
+    /// i--) { /                            // FIXME: check if this is always
+    /// correct for more complicated kernels /                            auto
+    /// indexvar = getOrderedIndexVars().at(i); / cout << indexvar << ", " <<
+    /// endl; /                            // if
     ///(contains(resultWriteIRNodes, indexvar)) { /
-    /// inputIterationCrdDst[indexvar] = reduceNode; / resultHasSource[indexvar]
+    /// inputIterationCrdDst[indexvar] = reduceNode; /
+    /// resultHasSource[indexvar]
     ///= true; /                            // } /                        } /
     /// reductionOrder.pop_back();
     //                        break;
@@ -810,16 +821,19 @@ SamIR SAMGraph::makeGraph() {
   //                if (contains(resultWriteIRNodes, indexvar)) {
   //                    for (int i = 0; i < distance; i++) {
   //                        auto outerIndexVar = indexvar;
-  //                        auto innerIndexVar = getOrderedIndexVars().at(count
+  //                        auto innerIndexVar =
+  //                        getOrderedIndexVars().at(count
   //                        + distance - i);
   //
   //                        auto crdDestOuter = contains(resultHasSource,
-  //                        outerIndexVar) && resultHasSource.at(outerIndexVar)
+  //                        outerIndexVar) &&
+  //                        resultHasSource.at(outerIndexVar)
   //                        ?
   //                                       inputIterationCrdDst.at(outerIndexVar)
   //                                       : SamIR();
   //                        auto crdDestInner = contains(resultHasSource,
-  //                        innerIndexVar) && resultHasSource.at(innerIndexVar)
+  //                        innerIndexVar) &&
+  //                        resultHasSource.at(innerIndexVar)
   //                        ?
   //                                       inputIterationCrdDst.at(innerIndexVar)
   //                                       : SamIR();
@@ -876,8 +890,8 @@ SamIR SAMGraph::makeGraph() {
             }),
         function<void(const taco::ReductionNode *, Matcher *)>(
             [&](const taco::ReductionNode *op, Matcher *ctx) {
-              // FIXME: This should be any type of reducer (including SpAcc, not
-              // just reduce block)
+              // FIXME: This should be any type of reducer (including SpAcc,
+              // not just reduce block)
               SamIR reduce;
               if (op->var == getOrderedIndexVars().at(numIndexVars - 1) ||
                   reductionOrder.back() == 0) {
@@ -906,8 +920,8 @@ SamIR SAMGraph::makeGraph() {
                 // should take both the value and
                 for (int i = numIndexVars - 1;
                      i >= (numIndexVars - 1 - reductionOrder.back()); i--) {
-                  // FIXME: check if this is always correct for more complicated
-                  // kernels
+                  // FIXME: check if this is always correct for more
+                  // complicated kernels
                   auto indexvar = getOrderedIndexVars().at(i);
                   cout << indexvar << ", " << endl;
                   inputIterationCrdDst[indexvar] = reduce;
@@ -960,9 +974,9 @@ SamIR SAMGraph::makeGraph() {
   //
   //            bool isResult =  std::count(resultVars.begin(),
   //            resultVars.end(), indexVar) > 0;
-  //            << isIntersection  << "," << outerIntersection << ", contraction
-  //            size: " << contractions.at(indexVar).size() << ", isResult:" <<
-  //            isResult << std::endl;
+  //            << isIntersection  << "," << outerIntersection << ",
+  //            contraction size: " << contractions.at(indexVar).size() << ",
+  //            isResult:" << isResult << std::endl;
   //            // FIXME: See if the result var needing to be there is
   //            necessary... Think about X(i) = B(i,j)*C(i,j)
   //
@@ -989,8 +1003,8 @@ SamIR SAMGraph::makeGraph() {
 
   // This CrdDrop Algorithm assumes that empty reductions get filtered out.
   // For implementations that have empty reductions = 0, this will still work
-  // because CrdDrop blocks should just be pass-through. Although it would work
-  // with Fewer CrdDrop blocks...
+  // because CrdDrop blocks should just be pass-through. Although it would
+  // work with Fewer CrdDrop blocks...
   map<IndexVar, bool> hasCrdDrop;
   IndexVar prevContractionVar = IndexVar();
   for (int count = 0; count < (int)getOrderedIndexVars().size(); count++) {
@@ -1073,24 +1087,12 @@ SamIR SAMGraph::makeGraph() {
 
       auto vars = tensorPath.getVariables();
 
-      // for (auto var : vars) {
-      // cout << tensorVar << endl;
-      // cout << "VAR: " << var << endl;
-      // }
-
       bool skipIndexVar =
           std::count(inputIterationIndexVarMap.at(tensorVar).begin(),
                      inputIterationIndexVarMap.at(tensorVar).end(),
                      indexvar) == 0;
-      for (auto iter = inputIterationIndexVarMap.begin();
-           iter != inputIterationIndexVarMap.end(); ++iter) {
-        // for (auto item : iter->second) {
-        // cout << iter->first << ": " << item << endl;
-        // }
-      }
       if (std::count(vars.begin(), vars.end(), indexvar) == 0 and
           !skipIndexVar) {
-        // cout << "Index: " << indexvar << endl;
 
         if (count == 0) {
           node = Repeat(inputValsArrays[tensorVar], indexvar, tensorVar, id,
@@ -1117,8 +1119,8 @@ SamIR SAMGraph::makeGraph() {
       id++;
     }
 
-    // if a RepSigGen, the destination coordinate needs to be broadcasted to the
-    // RepSigGen block
+    // if a RepSigGen, the destination coordinate needs to be broadcasted to
+    // the RepSigGen block
     if (repeatSigGenNode.defined() && crdDest.defined()) {
       map<SamIR, string> edgeName;
       if (hasSparseAccumulation) {
