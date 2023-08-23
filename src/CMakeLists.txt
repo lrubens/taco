@@ -23,7 +23,7 @@ set(TACO_SOURCES ${TACO_SOURCES} ir_tags.cpp sam/sam_printer.cpp sam/sam_printer
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-file(GLOB PROTO_SRCS sam/proto/*.proto)
+file(GLOB PROTO_SRCS sam/tortilla/proto/*.proto)
 
 protobuf_generate_cpp(PROTO_SRC PROTO_HEADER ${PROTO_SRCS})
 add_library(proto ${PROTO_HEADER} ${PROTO_SRC})

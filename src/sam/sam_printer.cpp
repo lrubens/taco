@@ -9,6 +9,7 @@
 #include "taco/util/strings.h"
 
 using namespace std;
+using namespace tortilla;
 
 namespace taco
 {

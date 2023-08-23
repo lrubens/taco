@@ -17,6 +17,8 @@
 #include <ostream>
 #include <vector>
 
+using namespace tortilla;
+
 namespace taco {
 namespace sam {
 class SAMPrinter : public SAMVisitor {

@@ -4,3 +4,6 @@
 [submodule "test/bats"]
 	path = test/bats
 	url = https://github.com/bats-core/bats-core
+[submodule "src/sam/tortilla"]
+	path = src/sam/tortilla
+	url = https://github.com/stanford-ppl/tortilla.git
