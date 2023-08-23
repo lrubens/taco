@@ -6,6 +6,11 @@ else()
   message("-- Static library")
 endif()
 
+#set(Protobuf_PREFIX_PATH
+#    "/usr/local/include/google/protobuf"
+#)
+#list(APPEND CMAKE_PREFIX_PATH "${Protobuf_PREFIX_PATH}")
+
 include(FindProtobuf)
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIR})

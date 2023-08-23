@@ -3,5 +3,8 @@
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
     "editor.formatOnType": true,
-    "editor.defaultFormatter": "ms-vscode.cpptools-extension-pack"
+    "editor.defaultFormatter": "ms-vscode.cpptools-extension-pack",
+    "[cpp]": {
+        "editor.defaultFormatter": "demiaochen.clang-format-indent-4"
+    }
 }
