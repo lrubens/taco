@@ -429,7 +429,7 @@ SamIR SAMGraph::makeGraph() {
     auto outerTensors = getTensorVars(tempExpr);
     auto indexVars = getAccessVars(tempExpr);
 
-    // TODO: Figure out if this is correct for all expressions
+    // TODO: Figure out if this is correct for all expressions (Rubens)
     // Pushing free index variables to broadcast, think this might have been a
     // bug
     for (auto var : content->freeVars) {
@@ -710,16 +710,25 @@ SamIR SAMGraph::makeGraph() {
     vector<SamNodeType> reduction;
     auto isInnerReduction = true;
     vector<int> reductionOrder;
+    for (auto var : content->freeVars) {
+        cout << "ITEM: " << var << endl;
+    }
     for (int count = 0; count < numIndexVars; count++) {
         IndexVar indexvar = getOrderedIndexVars().at(numIndexVars - 1 - count);
-        if (isReduction(indexvar) && isInnerReduction) {
+        if ((isReduction(indexvar) && isInnerReduction) || std::count(content->freeVars.begin(), content->freeVars.end(), indexvar) == 0) {
             reduction.push_back(SamNodeType::Reduce);
             reductionOrder.push_back(count);
-        } else if (isReduction(indexvar) && !isInnerReduction) {
+            if (std::count(content->freeVars.begin(), content->freeVars.end(), indexvar))
+                isInnerReduction = true;
+        }
+        else if (isReduction(indexvar) && !isInnerReduction)
+        {
             reduction.push_back(SamNodeType::SparseAccumulator);
             reductionOrder.push_back(count);
             isInnerReduction = false;
-        } else {
+        }
+        else
+        {
             isInnerReduction = false;
         }
     }

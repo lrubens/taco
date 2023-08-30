@@ -1209,9 +1209,14 @@ void SAMDotEdgePrinter::visit(const SparseAccumulatorNode *op) {
                     curr_op->mutable_spacc()->mutable_output_inner_crd();
             } else {
                 curr_op = id_to_op[op->nodeID];
-                std::cout << "outer: " << comment << endl;
+                if (std::count(spacc_idx.begin(), spacc_idx.end(),
+                               string(&comment.back()))) {
+                    continue;
+                } else {
                 curr_op->mutable_spacc()->add_output_outer_crds()->set_name(
                     comment);
+                }
+                std::cout << "outer: " << comment << endl;
                 // chan_track.get_create_channel("out_crd", op->nodeID);
                 const int num_outputs =
                     curr_op->mutable_spacc()->output_outer_crds_size();
@@ -1219,10 +1224,11 @@ void SAMDotEdgePrinter::visit(const SparseAccumulatorNode *op) {
                     ->mutable_output_outer_crds(num_outputs - 1)
                     ->mutable_id()
                     ->set_id(
-                        chan_track.get_create_channel("out_crd", op->nodeID));
+                        chan_track.create_channel("out_crd", op->nodeID));
                 out_stream.cstream =
                     curr_op->mutable_spacc()->mutable_output_outer_crds(
                         num_outputs - 1);
+                spacc_idx.push_back(string(&comment.back()));
             }
             out_stream.type = "crd";
             out_crd.second.accept(this);

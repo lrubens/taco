@@ -1166,6 +1166,7 @@ int main(int argc, char* argv[]) {
 
   IndexStmt stmt =
       makeConcreteNotation(makeReductionNotation(tensor.getAssignment()));
+  std::cout << "stmt: " << stmt << endl;
   stmt = reorderLoopsTopologically(stmt);
 
   if (setSchedule) {

@@ -195,6 +195,7 @@ private:
   std::string label;
 
   std::string curr_comment;
+  std::vector<std::string> spacc_idx;
 
   int full_joiner;
   int val_writer_id = -1;
