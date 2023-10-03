@@ -67,7 +67,7 @@ RUN cd /home/taco && mkdir build && \
 RUN apt-get update && apt-get install numactl wget -y
 ENV HYPERMAPPER_HOME=/home/baco
 RUN cd - && cd - && cd - && cd - && cd /home/taco && ls && chmod +x download_suitesparse.sh && chmod +x download_frostt.sh && chmod +x extract.sh
-# RUN /home/taco/download_suitesparse.sh && /home/taco/download_frostt.sh && /home/taco/extract.sh 
+RUN /home/taco/download_suitesparse.sh && /home/taco/download_frostt.sh && /home/taco/extract.sh 
 WORKDIR /home/taco
 COPY taco_run.sh build/
 WORKDIR /home/taco/build
