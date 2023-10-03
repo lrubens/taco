@@ -1,71 +1,63 @@
 # Use a smaller base image
 FROM ubuntu:20.04
+# FROM pytorch/pytorch
 
-ENV SUITESPARSE_PATH=/app/data/suitesparse \
-    FROST_PATH=/app/data/FROSTT \
-    DEBIAN_FRONTEND=noninteractive
+ENV SUITESPARSE_PATH=/home/data/suitesparse \
+  FROST_PATH=/home/data/FROSTT \
+  DEBIAN_FRONTEND=noninteractive
 
 # Set the working directory
-WORKDIR /app
+WORKDIR /home
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
   apt-utils \
   build-essential \
-  python3 \
+  python3.10 \
   python3-pip \
-    cmake \
+  cmake \
   git \
   curl \
   unzip \
   libomp-dev \
   zlib1g-dev \
   libssl-dev \
-  libprotobuf-dev \
-  protobuf-compiler \
+  ruby \
+  autoconf automake libtool libgsl-dev \
+  pkg-config \
   libopenmpi-dev && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY baco /app/baco
+RUN pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
-  #git clone https://github.com/baco-authors/baco.git && \
+# install baco
 RUN \
+  cd /home && \
+  git clone https://github.com/baco-authors/baco.git && \
   cd baco && \
   apt-get install -y pip && \
-  pip install --upgrade pip && \
-  pip install -e .
-RUN export PYTHONPATH="/app/baco"
-ENV PYTHONPATH="/app/baco"
+  pip3 install --upgrade pip3 && \
+  pip3 install -e .
+
+# install baselines
 RUN \
-  cd /app/baco && \
-  bash install_baselines.sh && cd /app
+  cd /home/baco && \
+  bash install_baselines.sh && cd /home
 
-# # Clone and build protobuf from source
-# RUN git clone https://github.com/protocolbuffers/protobuf.git && \
-#     cd protobuf && \
-#     git checkout v3.17.3 && \
-#     mkdir build && cd build && \
-#     cmake ../cmake/ -Dprotobuf_BUILD_TESTS=OFF && \
-#     make -j8 && \
-#     make install && \
-#     cd ../.. && \
-#     rm -rf protobuf
+# set environment variables
+ENV PYTHONPATH="/home/baco:/home/baco/extra_packages/CCS/bindings/python/"
+ENV LD_LIBRARY_PATH="/usr/local/lib"
 
-# RUN git clone --recurse-submodules -b v1.56.0 --depth 1 --shallow-submodules https://github.com/grpc/grpc
+RUN git clone https://github.com/lrubens/taco.git && cd taco && git checkout grpc
 
-# Copy current directory files to docker
-# COPY grpc_install.sh .
-# RUN ./grpc_install.sh
-
-COPY . .
 # Create build directory, build the project, and clean up
-RUN mkdir build && \
-    cd build && \
-    cmake -DCMAKE_BUILD_TYPE=Release -DOPENMP=ON .. && \
-    make -j8 && \
-    mv ../cpp_taco_* . && \
-    cd ..
+RUN cd /home/taco && mkdir build && \
+  cd build && \
+  cmake -DCMAKE_BUILD_TYPE=Release -DOPENMP=ON .. && \
+  make -j16 && \
+  mv ../cpp_taco_* . && \
+  cd ..
 
 # Here we assume that "cpp_taco_*" files are meant to stay in "/app/build". 
 # If that's not the case, please adjust the path accordingly.
