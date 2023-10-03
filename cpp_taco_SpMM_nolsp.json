@@ -5,7 +5,7 @@
         "number_of_samples": 11
     },
     "epsilon_greedy_threshold": 0,
-    "hypermapper_mode": {
+    "baco_mode": {
         "mode": "client-server"
     },
     "input_parameters": {

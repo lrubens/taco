@@ -49,7 +49,7 @@ RUN \
 ENV PYTHONPATH="/home/baco:/home/baco/extra_packages/CCS/bindings/python/"
 ENV LD_LIBRARY_PATH="/usr/local/lib"
 
-RUN git clone https://github.com/lrubens/taco.git && cd taco && git checkout grpc && cd .
+RUN git clone https://github.com/lrubens/taco.git && cd taco && git checkout grpc && cd ../ && cd -
 
 # Create build directory, build the project, and clean up
 RUN cd /home/taco && mkdir build && \
@@ -65,7 +65,7 @@ RUN cd /home/taco && mkdir build && \
 ENV HYPERMAPPER_HOME=/home/baco
 COPY run_taco.sh .
 WORKDIR /home/taco
-ENTRYPOINT ["./run_taco.sh"]
-CMD ["-mat", "Goodwin_040/Goodwin_040.mtx", "--method", "random", "-o", "SpMM"]
+# ENTRYPOINT ["./run_taco.sh"]
+# CMD ["-mat", "Goodwin_040/Goodwin_040.mtx", "--method", "random", "-o", "SpMM"]
 
 
