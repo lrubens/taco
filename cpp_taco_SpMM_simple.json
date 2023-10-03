@@ -102,7 +102,6 @@
             ]
         }
     },
-    "log_file": "experiments/outdata_SpMM_bcsstk18/bayesian_optimization/log_cpp_taco_SpMM.log",
     "log_transform_output": false,
     "models": {
         "model": "gaussian_process"
@@ -114,7 +113,7 @@
     "optimization_objectives": [
         "compute_time"
     ],
-    "run_directory": "~TACO/taco/build",
+    "run_directory": "/home/taco/build",
     "GP_model": "gpy",
     "multistart_hyperparameter_optimization": false
 }

@@ -92,6 +92,7 @@
             0.003
         ]
     },    
+    "run_directory": "/home/taco/build",
     "models": {
         "model": "gaussian_process"
     },
