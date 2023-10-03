@@ -12,7 +12,9 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
   apt-utils \
   build-essential \
-  cmake \
+  python3 \
+  python3-pip \
+    cmake \
   git \
   curl \
   unzip \
@@ -25,22 +27,36 @@ RUN apt-get update && apt-get install -y \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Clone and build protobuf from source
-RUN git clone https://github.com/protocolbuffers/protobuf.git && \
-    cd protobuf && \
-    git checkout v3.17.3 && \
-    mkdir build && cd build && \
-    cmake ../cmake/ -Dprotobuf_BUILD_TESTS=OFF && \
-    make -j8 && \
-    make install && \
-    cd ../.. && \
-    rm -rf protobuf
+COPY baco /app/baco
 
-RUN git clone --recurse-submodules -b v1.56.0 --depth 1 --shallow-submodules https://github.com/grpc/grpc
+  #git clone https://github.com/baco-authors/baco.git && \
+RUN \
+  cd baco && \
+  apt-get install -y pip && \
+  pip install --upgrade pip && \
+  pip install -e .
+RUN export PYTHONPATH="/app/baco"
+ENV PYTHONPATH="/app/baco"
+RUN \
+  cd /app/baco && \
+  bash install_baselines.sh && cd /app
+
+# # Clone and build protobuf from source
+# RUN git clone https://github.com/protocolbuffers/protobuf.git && \
+#     cd protobuf && \
+#     git checkout v3.17.3 && \
+#     mkdir build && cd build && \
+#     cmake ../cmake/ -Dprotobuf_BUILD_TESTS=OFF && \
+#     make -j8 && \
+#     make install && \
+#     cd ../.. && \
+#     rm -rf protobuf
+
+# RUN git clone --recurse-submodules -b v1.56.0 --depth 1 --shallow-submodules https://github.com/grpc/grpc
 
 # Copy current directory files to docker
-COPY grpc_install.sh .
-RUN ./grpc_install.sh
+# COPY grpc_install.sh .
+# RUN ./grpc_install.sh
 
 COPY . .
 # Create build directory, build the project, and clean up

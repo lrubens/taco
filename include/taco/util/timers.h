@@ -1,12 +1,12 @@
 #ifndef TACO_UTIL_BENCHMARK_H
 #define TACO_UTIL_BENCHMARK_H
 
-#include <chrono>
 #include <algorithm>
+#include <chrono>
+#include <cmath>
 #include <iostream>
 #include <numeric>
 #include <vector>
-#include <cmath>
 
 #include <fstream>
 
@@ -25,19 +25,16 @@ struct TimeResults {
   std::vector<double> energy_consumptions;
   int size;
 
-  friend std::ostream& operator<<(std::ostream& os, const TimeResults& t) {
+  friend std::ostream &operator<<(std::ostream &os, const TimeResults &t) {
     if (t.size == 1) {
       return os << t.mean;
-    }
-    else {
-      return os << "  mean:   " << t.mean   << endl
-                << "  stdev:  " << t.stdev  << endl
+    } else {
+      return os << "  mean:   " << t.mean << endl
+                << "  stdev:  " << t.stdev << endl
                 << "  median: " << t.median;
     }
   }
 };
-
-
 
 typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;
 
@@ -45,71 +42,77 @@ typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;
 /// statistics such as mean and median from the calls.
 class Timer {
 public:
-
   ~Timer() {
-    if(dummyA){ free(dummyA); }
-    if(dummyB){ free(dummyB); }
+    if (dummyA) {
+      free(dummyA);
+    }
+    if (dummyB) {
+      free(dummyB);
+    }
   }
   void start() {
-    energy_begin = get_energy_consumed(rapl_dir);
+    // energy_begin = get_energy_consumed(rapl_dir);
     begin = std::chrono::steady_clock::now();
   }
 
-  double get_max_energy_range(const std::string& rapl_dir) {
-      std::string energy_file_path = rapl_dir + "/energy_uj";
-      std::ifstream energy_file(energy_file_path);
-      if (!energy_file.is_open()) {
-          throw std::runtime_error("Failed to open file: " + energy_file_path);
-      }
-      long long max_energy_uj;
-      energy_file >> max_energy_uj;
-      if (!energy_file.good()) {
-          throw std::runtime_error("Failed to read from file: " + energy_file_path);
-      }
-      return static_cast<double>(max_energy_uj) * 1e-6;  // Convert micro-joules to joules
+  double get_max_energy_range(const std::string &rapl_dir) {
+    std::string energy_file_path = rapl_dir + "/energy_uj";
+    std::ifstream energy_file(energy_file_path);
+    if (!energy_file.is_open()) {
+      throw std::runtime_error("Failed to open file: " + energy_file_path);
+    }
+    long long max_energy_uj;
+    energy_file >> max_energy_uj;
+    if (!energy_file.good()) {
+      throw std::runtime_error("Failed to read from file: " + energy_file_path);
+    }
+    return static_cast<double>(max_energy_uj) *
+           1e-6; // Convert micro-joules to joules
   }
 
   void stop() {
     auto end = std::chrono::steady_clock::now();
-    auto energy_end = get_energy_consumed(rapl_dir);
+    // auto energy_end = get_energy_consumed(rapl_dir);
 
     auto diff = std::chrono::duration<double, std::milli>(end - begin).count();
     times.push_back(diff);
 
-    const double MAX_ENERGY = get_max_energy_range(rapl_dir);  // replace with actual maximum value
-    auto energy_diff = (energy_end < energy_begin) ?
-            (MAX_ENERGY - energy_begin + energy_end) :
-            (energy_end - energy_begin);
-    energy_consumptions.push_back(energy_diff);
+    // const double MAX_ENERGY =
+    //     get_max_energy_range(rapl_dir); // replace with actual maximum value
+    // auto energy_diff = (energy_end < energy_begin)
+    //                        ? (MAX_ENERGY - energy_begin + energy_end)
+    //                        : (energy_end - energy_begin);
+    // energy_consumptions.push_back(energy_diff);
   }
 
   // Function to read energy consumed
-  double get_energy_consumed(const std::string& rapl_dir) {
-      std::string energy_file_path = rapl_dir + "/energy_uj";
-      std::ifstream energy_file(energy_file_path);
-      if (!energy_file.is_open()) {
-          throw std::runtime_error("Failed to open file: " + energy_file_path);
-      }
-      long long energy_uj;
-      energy_file >> energy_uj;
-      if (!energy_file.good()) {
-          throw std::runtime_error("Failed to read from file: " + energy_file_path);
-      }
-      return static_cast<double>(energy_uj) * 1e-6;  // Convert micro-joules to joules
+  double get_energy_consumed(const std::string &rapl_dir) {
+    std::string energy_file_path = rapl_dir + "/energy_uj";
+    std::ifstream energy_file(energy_file_path);
+    if (!energy_file.is_open()) {
+      throw std::runtime_error("Failed to open file: " + energy_file_path);
+    }
+    long long energy_uj;
+    energy_file >> energy_uj;
+    if (!energy_file.good()) {
+      throw std::runtime_error("Failed to read from file: " + energy_file_path);
+    }
+    return static_cast<double>(energy_uj) *
+           1e-6; // Convert micro-joules to joules
   }
 
   double med(vector<double> vec) {
-      typedef vector<int>::size_type vec_sz;
+    typedef vector<int>::size_type vec_sz;
 
-      vec_sz size = vec.size();
-      if (size == 0)
-          throw domain_error("median of an empty vector");
+    vec_sz size = vec.size();
+    if (size == 0)
+      throw domain_error("median of an empty vector");
 
-      sort(vec.begin(), vec.end());
+    sort(vec.begin(), vec.end());
 
-      vec_sz mid = size/2;
+    vec_sz mid = size / 2;
 
-      return size % 2 == 0 ? (vec[mid] + vec[mid-1]) / 2 : vec[mid];
+    return size % 2 == 0 ? (vec[mid] + vec[mid - 1]) / 2 : vec[mid];
   }
 
   // Compute mean, standard deviation and median
@@ -119,7 +122,7 @@ public:
     TimeResults result;
     result.times = times;
     result.energy_consumptions = energy_consumptions;
-  
+
     // times = ends - begins
     std::vector<double> sorted_times = times;
     std::sort(sorted_times.begin(), sorted_times.end());
@@ -134,28 +137,29 @@ public:
     result.mean = mean;
 
     std::vector<double> diff(size);
-    std::transform(sorted_times.begin() + truncate, sorted_times.end() - truncate,
-                   diff.begin(), [mean](double x) { return x - mean; });
-    double sq_sum = std::inner_product(diff.begin(), diff.end(),
-                                       diff.begin(), 0.0);
+    std::transform(sorted_times.begin() + truncate,
+                   sorted_times.end() - truncate, diff.begin(),
+                   [mean](double x) { return x - mean; });
+    double sq_sum =
+        std::inner_product(diff.begin(), diff.end(), diff.begin(), 0.0);
     result.stdev = std::sqrt(sq_sum / size);
-    result.median = (size % 2)
-                    ? sorted_times[size/2]
-                    : (sorted_times[size/2-1] + sorted_times[size/2]) / 2;
+    result.median =
+        (size % 2) ? sorted_times[size / 2]
+                   : (sorted_times[size / 2 - 1] + sorted_times[size / 2]) / 2;
     return result;
   }
 
   double clear_cache() {
     double ret = 0.0;
     if (!dummyA) {
-      dummyA = (double*)(malloc(dummySize*sizeof(double)));
-      dummyB = (double*)(malloc(dummySize*sizeof(double)));
+      dummyA = (double *)(malloc(dummySize * sizeof(double)));
+      dummyB = (double *)(malloc(dummySize * sizeof(double)));
     }
-    for (int i=0; i< 100; i++) {
-      dummyA[rand() % dummySize] = rand()/RAND_MAX;
-      dummyB[rand() % dummySize] = rand()/RAND_MAX;
+    for (int i = 0; i < 100; i++) {
+      dummyA[rand() % dummySize] = rand() / RAND_MAX;
+      dummyB[rand() % dummySize] = rand() / RAND_MAX;
     }
-    for (int i=0; i<dummySize; i++) {
+    for (int i = 0; i < dummySize; i++) {
       ret += dummyA[i] * dummyB[i];
     }
     return ret;
@@ -166,13 +170,14 @@ protected:
   vector<double> energy_consumptions;
   TimePoint begin;
   double energy_begin;
-private:
-  std::string rapl_dir = "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0";
-  int dummySize = 3000000;
-  double* dummyA = NULL;
-  double* dummyB = NULL;
-};
 
+private:
+  std::string rapl_dir =
+      "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0";
+  int dummySize = 3000000;
+  double *dummyA = NULL;
+  double *dummyB = NULL;
+};
 
 /// Monotonic timer that prints results as it goes.
 class LapTimer {
@@ -183,14 +188,14 @@ public:
     }
   }
 
-  void start(const string& name) {
+  void start(const string &name) {
     this->timingName = name;
     taco_iassert(!isTiming) << "Called PrintTimer::start twice in a row";
     isTiming = true;
     begin = std::chrono::steady_clock::now();
   }
 
-  void lap(const string& name) {
+  void lap(const string &name) {
     auto end = std::chrono::steady_clock::now();
     taco_iassert(isTiming) << "lap timer that hasn't been started";
     if (timerGroup) {
@@ -222,18 +227,20 @@ private:
   bool isTiming;
 };
 
-}}
+} // namespace util
+} // namespace taco
 
-#define TACO_TIME_REPEAT(CODE, REPEAT, RES, COLD) {  \
-    taco::util::Timer timer;                         \
-    for(int i=0; i<REPEAT; i++) {                    \
-      if(COLD)                                       \
-        timer.clear_cache();                         \
-      timer.start();                                 \
-      CODE;                                          \
-      timer.stop();                                  \
-    }                                                \
-    RES = timer.getResult();                         \
+#define TACO_TIME_REPEAT(CODE, REPEAT, RES, COLD)                              \
+  {                                                                            \
+    taco::util::Timer timer;                                                   \
+    for (int i = 0; i < REPEAT; i++) {                                         \
+      if (COLD)                                                                \
+        timer.clear_cache();                                                   \
+      timer.start();                                                           \
+      CODE;                                                                    \
+      timer.stop();                                                            \
+    }                                                                          \
+    RES = timer.getResult();                                                   \
   }
 
 #endif
