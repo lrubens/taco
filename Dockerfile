@@ -64,9 +64,11 @@ RUN cd /home/taco && mkdir build && \
 
 RUN apt-get update && apt-get install numactl -y
 ENV HYPERMAPPER_HOME=/home/baco
-COPY run_taco.sh .
+RUN cd - && cd - && cd - && cd -
 WORKDIR /home/taco
-# ENTRYPOINT ["./run_taco.sh"]
+COPY taco_run.sh build/
+WORKDIR /home/taco/build
+# ENTRYPOINT ["/home/taco/build/taco_run.sh"]
 # CMD ["-mat", "Goodwin_040/Goodwin_040.mtx", "--method", "random", "-o", "SpMM"]
 
 

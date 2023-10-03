@@ -5,7 +5,7 @@ NUM_ITER=1
 # ablation
 for mat in filter3D email-Enron amazon0312; do
 	for i in {1..$NUM_ITER}; do
-		numactl -i all ./bin/taco-taco_dse -mat $1.mtx -n 10 -c $i -o SpMM
+		./bin/taco-taco_dse -mat $1.mtx -n 10 -c $i -o SpMM
 		numactl -i all ./bin/taco-taco_dse -mat $1.mtx -n 10 -c $i -t simple -o SpMM
 		numactl -i all ./bin/taco-taco_dse -mat $1.mtx -n 10 -c $i -m ytopt -o SpMM
 		numactl -i all ./bin/taco-taco_dse -mat $1.mtx -n 10 -c $i -t hamming -o SpMM

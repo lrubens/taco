@@ -110,7 +110,6 @@
 	  "name": "gamma",
 	  "parameters": [1.3, 0.1]
     },
-    "log_file": "experiments/outdata_SpMM_bcsstk18/bayesian_optimization/log_cpp_taco_SpMM.log",
     "log_transform_output": true,
     "models": {
         "model": "gaussian_process"
