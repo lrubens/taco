@@ -78,7 +78,7 @@
                 4
             ],
             "parameter_type": "permutation",
-            "parametrization": "spearman",
+            "parametrization": "kendall",
             "values": [
                 5
             ]
@@ -90,7 +90,7 @@
             "dependencies": [
                 "chunk_size"
             ],
-            "parameter_default": 256,
+            "parameter_default": 512,
             "parameter_type": "ordinal",
             "transform": "log",
             "values": [
@@ -113,7 +113,7 @@
     "log_file": "experiments/outdata_SpMM_bcsstk18/bayesian_optimization/log_cpp_taco_SpMM.log",
     "log_transform_output": true,
     "models": {
-        "model": "gaussian_process"
+        "model": "random_forest"
     },
     "allow_duplicate_samples": true,
     "optimization_iterations": 110,
@@ -121,8 +121,7 @@
     "optimization_objectives": [
         "compute_time"
     ],
-    "run_directory": "~TACO/taco/build",
-    "GP_model": "gpy",
+    "run_directory": "~TACO/taco/build",    
     "multistart_hyperparameter_optimization": true,
     "hyperparameter_optimization_iterations": 10
 }

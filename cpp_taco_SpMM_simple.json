@@ -12,7 +12,6 @@
         "chunk_size": {
             "parameter_default": 512,
             "parameter_type": "ordinal",
-            "transform": "log",
             "values": [
                 2,
                 4,
@@ -28,7 +27,6 @@
         "omp_chunk_size": {
             "parameter_default": 256,
             "parameter_type": "ordinal",
-            "transform": "log",
             "values": [
                 1,
                 2,
@@ -44,7 +42,6 @@
         "omp_num_threads": {
             "parameter_default": 32,
             "parameter_type": "ordinal",
-            "transform": "log",
             "values": [
                 1,
                 2,
@@ -78,7 +75,7 @@
                 4
             ],
             "parameter_type": "permutation",
-            "parametrization": "spearman",
+            "parametrization": "naive",
             "values": [
                 5
             ]
@@ -90,9 +87,8 @@
             "dependencies": [
                 "chunk_size"
             ],
-            "parameter_default": 256,
+            "parameter_default": 512,
             "parameter_type": "ordinal",
-            "transform": "log",
             "values": [
                 2,
                 4,
@@ -106,15 +102,12 @@
             ]
         }
     },
-    "lengthscale_prior" : {
-	  "name": "gamma",
-	  "parameters": [1.3, 0.1]
-    },
     "log_file": "experiments/outdata_SpMM_bcsstk18/bayesian_optimization/log_cpp_taco_SpMM.log",
-    "log_transform_output": true,
+    "log_transform_output": false,
     "models": {
         "model": "gaussian_process"
     },
+    "local_search_starting_points": 0,
     "allow_duplicate_samples": true,
     "optimization_iterations": 110,
     "optimization_method": "bayesian_optimization",
@@ -123,6 +116,5 @@
     ],
     "run_directory": "~TACO/taco/build",
     "GP_model": "gpy",
-    "multistart_hyperparameter_optimization": true,
-    "hyperparameter_optimization_iterations": 10
+    "multistart_hyperparameter_optimization": false
 }

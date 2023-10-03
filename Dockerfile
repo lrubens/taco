@@ -37,7 +37,7 @@ RUN \
   git clone https://github.com/baco-authors/baco.git && \
   cd baco && \
   apt-get install -y pip && \
-  pip3 install --upgrade pip3 && \
+  pip3 install --upgrade pip && \
   pip3 install -e .
 
 # install baselines
@@ -49,7 +49,7 @@ RUN \
 ENV PYTHONPATH="/home/baco:/home/baco/extra_packages/CCS/bindings/python/"
 ENV LD_LIBRARY_PATH="/usr/local/lib"
 
-RUN git clone https://github.com/lrubens/taco.git && cd taco && git checkout grpc
+RUN git clone https://github.com/lrubens/taco.git && cd taco && git checkout grpc && cd .
 
 # Create build directory, build the project, and clean up
 RUN cd /home/taco && mkdir build && \
@@ -62,7 +62,9 @@ RUN cd /home/taco && mkdir build && \
 # Here we assume that "cpp_taco_*" files are meant to stay in "/app/build". 
 # If that's not the case, please adjust the path accordingly.
 
+ENV HYPERMAPPER_HOME=/home/baco
 COPY run_taco.sh .
+WORKDIR /home/taco
 ENTRYPOINT ["./run_taco.sh"]
 CMD ["-mat", "Goodwin_040/Goodwin_040.mtx", "--method", "random", "-o", "SpMM"]
 

@@ -78,7 +78,7 @@
                 4
             ],
             "parameter_type": "permutation",
-            "parametrization": "spearman",
+            "parametrization": "kendall",
             "values": [
                 5
             ]

@@ -78,7 +78,7 @@
                 4
             ],
             "parameter_type": "permutation",
-            "parametrization": "spearman",
+            "parametrization": "naive",
             "values": [
                 5
             ]

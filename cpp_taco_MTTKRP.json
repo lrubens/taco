@@ -9,9 +9,6 @@
     },
     "input_parameters": {
         "chunk_size": {
-            "constraints": [
-                "chunk_size % 2 == 0"
-            ],
             "parameter_type": "ordinal",
             "parameter_default": 16,
             "transform": "log",
@@ -26,9 +23,6 @@
             ]
         },
         "omp_chunk_size": {
-            "constraints": [
-                "(omp_chunk_size % 2 == 0) | (omp_chunk_size == 1)"
-            ],
             "parameter_type": "ordinal",
             "parameter_default": 1,
             "transform": "log",
@@ -46,8 +40,7 @@
         },
         "unroll_factor": {
             "constraints": [
-                "unroll_factor < chunk_size",
-                "unroll_factor % 2 == 0"
+                "unroll_factor < chunk_size"
             ],
             "dependencies": [
                 "chunk_size"
@@ -91,6 +84,12 @@
     "models": {
         "model": "gaussian_process"
     },
+    "lengthscale_prior" : {
+	  "name": "gamma",
+	  "parameters": [1.3, 0.1]
+    },
     "log_transform_output": true,
-    "epsilon_greedy_threshold": 0
+    "GP_model": "gpy",
+    "multistart_hyperparameter_optimization": true,
+    "hyperparameter_optimization_iterations": 10
 }
