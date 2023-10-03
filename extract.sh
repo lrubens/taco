@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set the directory where the tar.gz files are located
-folder="data/suitesparse"
+folder="/home/data/suitesparse"
 
 # Change to the target folder
 cd "$folder"

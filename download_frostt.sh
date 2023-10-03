@@ -36,13 +36,13 @@ TENSOR_URLS=(
 #  "https://s3.us-east-2.amazonaws.com/frostt/frostt_data/vast-2015-mc1/vast-2015-mc1-5d.tns.gz"
 )
 
-mkdir -p data/FROSTT
+mkdir -p /home/data/FROSTT
 
 for i in ${!TENSOR_URLS[@]}; do
     #name=${TENSOR_NAMES[$i]}
     name="uber-pickups"
     url=${TENSOR_URLS[$i]}
-    out="data/FROSTT/$name.tns"
+    out="/home/data/FROSTT/$name.tns"
     if [ -f "$out" ]; then
         continue
     fi

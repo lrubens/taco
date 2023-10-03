@@ -2,8 +2,8 @@
 #SBATCH -N 1
 #SBATCH -t 360
 
-mkdir -p data/suitesparse/
-cd data/suitesparse/
+mkdir -p /home/data/suitesparse/
+cd /home/data/suitesparse/
 
 wget https://sparse.tamu.edu/MM/Hamm/scircuit.tar.gz
 wget https://sparse.tamu.edu/MM/vanHeukelum/cage12.tar.gz
@@ -13,3 +13,5 @@ wget https://sparse.tamu.edu/MM/TKK/smt.tar.gz
 wget https://sparse.tamu.edu/MM/SNAP/email-Enron.tar.gz
 wget https://sparse.tamu.edu/MM/Goodwin/Goodwin_040.tar.gz
 wget https://sparse.tamu.edu/MM/TAMU_SmartGridCenter/ACTIVSg10K.tar.gz
+
+cd -

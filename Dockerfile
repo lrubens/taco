@@ -49,7 +49,7 @@ RUN \
 ENV PYTHONPATH="/home/baco:/home/baco/extra_packages/CCS/bindings/python/"
 ENV LD_LIBRARY_PATH="/usr/local/lib"
 
-RUN git clone https://github.com/lrubens/taco.git && cd taco && git checkout grpc && cd . && cd /home/taco
+RUN git clone https://github.com/lrubens/taco.git && cd taco && git checkout grpc && cd . && cd /home/taco && cd - && cd -
 
 # Create build directory, build the project, and clean up
 RUN cd /home/taco && mkdir build && \
@@ -62,13 +62,16 @@ RUN cd /home/taco && mkdir build && \
 # Here we assume that "cpp_taco_*" files are meant to stay in "/app/build". 
 # If that's not the case, please adjust the path accordingly.
 
+# COPY download_frostt.sh 
+
 RUN apt-get update && apt-get install numactl -y
 ENV HYPERMAPPER_HOME=/home/baco
 RUN cd - && cd - && cd - && cd -
+RUN sh download_suitesparse.sh && sh download_frostt.sh && extract.sh
 WORKDIR /home/taco
 COPY taco_run.sh build/
 WORKDIR /home/taco/build
-# ENTRYPOINT ["/home/taco/build/taco_run.sh"]
+ENTRYPOINT ["/home/taco/build/taco_run.sh"]
 # CMD ["-mat", "Goodwin_040/Goodwin_040.mtx", "--method", "random", "-o", "SpMM"]
 
 
