@@ -1608,9 +1608,9 @@ int main(int argc, char **argv) {
 
   // Launch HyperMapper
   std::string cmd("python3 ");
-  // cmd += getenv("HYPERMAPPER_HOME");
+  cmd += getenv("HYPERMAPPER_HOME");
   // cmd += "/scripts/hypermapper.py";
-  cmd += "baco/baco/run.py";
+  cmd += "/baco/run.py";
   // cmd += "/hypermapper/optimizer.py";
   cmd += " " + JSonFileNameStr;
 
