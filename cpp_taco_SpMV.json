@@ -97,5 +97,10 @@
             2.0,
             0.15
         ]
-    }
+    },
+    "optimization_objectives": [
+        "compute_time"
+    ],
+    "run_directory": "/home/taco/build",
+    "GP_model": "gpy",
 }
