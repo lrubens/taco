@@ -32,6 +32,7 @@ RUN apt-get update && apt-get install -y \
 RUN pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
 # install baco
+RUN ls
 RUN \
   cd /home && \
   git clone https://github.com/baco-authors/baco.git && \
@@ -49,8 +50,9 @@ RUN \
 ENV PYTHONPATH="/home/baco:/home/baco/extra_packages/CCS/bindings/python/"
 ENV LD_LIBRARY_PATH="/usr/local/lib"
 
-RUN git clone https://github.com/lrubens/taco.git && cd taco && git checkout grpc && cd /home/taco
+RUN git clone https://github.com/lrubens/taco.git && cd taco && git checkout grpc && cd /home/taco && mkdir -p /home/data/FROSTT/facebook && cp facebook.tns /home/data/FROSTT/facebook && cd .
 
+RUN ls && cd .
 # Create build directory, build the project, and clean up
 RUN cd /home/taco && mkdir build && \
   cd build && \
@@ -69,7 +71,7 @@ ENV HYPERMAPPER_HOME=/home/baco
 RUN cd /home/taco && ls && chmod +x download_suitesparse.sh && chmod +x download_frostt.sh && chmod +x extract.sh
 RUN /home/taco/download_suitesparse.sh && /home/taco/download_frostt.sh && /home/taco/extract.sh 
 WORKDIR /home/taco
-RUN ls
+RUN ls && cd - && cd -
 COPY taco_run.sh build/
 WORKDIR /home/taco/build
 ENTRYPOINT ["/home/taco/build/taco_run.sh"]
