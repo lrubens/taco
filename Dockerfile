@@ -49,7 +49,7 @@ RUN \
 ENV PYTHONPATH="/home/baco:/home/baco/extra_packages/CCS/bindings/python/"
 ENV LD_LIBRARY_PATH="/usr/local/lib"
 
-RUN git clone https://github.com/lrubens/taco.git && cd taco && git checkout grpc && cd . && cd /home/taco && cd - && cd - && cd - && cd -
+RUN git clone https://github.com/lrubens/taco.git && cd taco && git checkout grpc && cd /home/taco
 
 # Create build directory, build the project, and clean up
 RUN cd /home/taco && mkdir build && \
@@ -66,7 +66,7 @@ RUN cd /home/taco && mkdir build && \
 
 RUN apt-get update && apt-get install numactl wget -y
 ENV HYPERMAPPER_HOME=/home/baco
-RUN cd - && cd - && cd - && cd - && cd /home/taco && ls && chmod +x download_suitesparse.sh && chmod +x download_frostt.sh && chmod +x extract.sh
+RUN cd /home/taco && ls && chmod +x download_suitesparse.sh && chmod +x download_frostt.sh && chmod +x extract.sh
 RUN /home/taco/download_suitesparse.sh && /home/taco/download_frostt.sh && /home/taco/extract.sh 
 WORKDIR /home/taco
 RUN ls
