@@ -1616,11 +1616,11 @@ int main(int argc, char **argv) {
 
   std::string OutputFoldername;
   std::string OutputFoldernameMat;
-  std::string ExperimentFolder = "experiments";
+  std::string ExperimentFolder = "experiments/";
   size_t lastindex = matrix_name.find_last_of(".");
   string rawname = matrix_name.substr(0, lastindex);
   OutputFoldernameMat =
-      ExperimentFolder + test_name;
+      ExperimentFolder + test_name + "/" + rawname;
   OutputFoldername = OutputFoldernameMat + "/" + optimization;
 
   std::string AppName;
