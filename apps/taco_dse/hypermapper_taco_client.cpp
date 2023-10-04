@@ -1518,7 +1518,7 @@ int main(int argc, char **argv) {
   size_t lastindex = matrix_name.find_last_of(".");
   string rawname = matrix_name.substr(0, lastindex);
   OutputFoldernameMat =
-      ExperimentFolder + "/outdata_" + test_name + "_" + rawname;
+      ExperimentFolder + test_name;
   OutputFoldername = OutputFoldernameMat + "/" + optimization;
 
   std::string AppName;
