@@ -5,16 +5,16 @@ NUM_ITER=1
 # ablation
 for mat in filter3D email-Enron amazon0312; do
 	for i in {1..$NUM_ITER}; do
-		./bin/taco-taco_dse -mat $1/$1.mtx -n 10 -c $i -o SpMM
-		./bin/taco-taco_dse -mat $1/$1.mtx -n 10 -c $i -t simple -o SpMM
-		./bin/taco-taco_dse -mat $1/$1.mtx -n 10 -c $i -m ytopt -o SpMM
-		./bin/taco-taco_dse -mat $1/$1.mtx -n 10 -c $i -t hamming -o SpMM
-		./bin/taco-taco_dse -mat $1/$1.mtx -n 10 -c $i -t kendall -o SpMM
-		./bin/taco-taco_dse -mat $1/$1.mtx -n 10 -c $i -t naive -o SpMM
-		./bin/taco-taco_dse -mat $1/$1.mtx -n 10 -c $i -t nms -o SpMM
-		./bin/taco-taco_dse -mat $1/$1.mtx -n 10 -c $i -t nolog -o SpMM
-		./bin/taco-taco_dse -mat $1/$1.mtx -n 10 -c $i -t nolsp -o SpMM
-		./bin/taco-taco_dse -mat $1/$1.mtx -n 10 -c $i -t RF -o SpMM
+		./bin/taco-taco_dse -mat $mat/$mat.mtx -n 10 -c $i -o SpMM
+		./bin/taco-taco_dse -mat $mat/$mat.mtx -n 10 -c $i -t simple -o SpMM
+		./bin/taco-taco_dse -mat $mat/$mat.mtx -n 10 -c $i -m ytopt -o SpMM
+		./bin/taco-taco_dse -mat $mat/$mat.mtx -n 10 -c $i -t hamming -o SpMM
+		./bin/taco-taco_dse -mat $mat/$mat.mtx -n 10 -c $i -t kendall -o SpMM
+		./bin/taco-taco_dse -mat $mat/$mat.mtx -n 10 -c $i -t naive -o SpMM
+		./bin/taco-taco_dse -mat $mat/$mat.mtx -n 10 -c $i -t nms -o SpMM
+		./bin/taco-taco_dse -mat $mat/$mat.mtx -n 10 -c $i -t nolog -o SpMM
+		./bin/taco-taco_dse -mat $mat/$mat.mtx -n 10 -c $i -t nolsp -o SpMM
+		./bin/taco-taco_dse -mat $mat/$mat.mtx -n 10 -c $i -t RF -o SpMM
 	done
 done
 
