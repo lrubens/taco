@@ -9,27 +9,18 @@
     },
     "input_parameters": {
         "chunk_size": {
-            "constraints": [
-                "chunk_size % 2 == 0"
-            ],
             "parameter_type": "ordinal",
             "parameter_default": 16,
             "transform": "log",
             "values": [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]                
         },
         "chunk_size2": {
-            "constraints": [
-                "chunk_size2 % 2 == 0"
-            ],
             "parameter_type": "ordinal",
             "parameter_default": 16,
             "transform": "log",
             "values": [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]                
         },
         "chunk_size3": {
-            "constraints": [
-                "chunk_size3 % 2 == 0"
-            ],
             "parameter_type": "ordinal",
             "parameter_default": 16,
             "transform": "log",
@@ -47,9 +38,6 @@
             ]
         },
         "omp_chunk_size": {
-            "constraints": [
-                "(omp_chunk_size % 2 == 0) | (omp_chunk_size == 1)"
-            ],
             "parameter_type": "ordinal",
             "parameter_default": 1,
             "transform": "log",
